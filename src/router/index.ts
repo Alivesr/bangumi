@@ -1,12 +1,25 @@
 import { createRouter, createWebHistory } from "vue-router";
 // @ts-ignore
-import Home from "../page/home/index.vue";
-
+import Calendar from "@/page/home/Calendar/index.vue";
+import Home from "@/page/home/index.vue";
+import Subject from "@/page/home/subject/index.vue";
 const routes = [
   {
     path: "/",
     name: "Home",
     component: Home,
+    children: [
+      {
+        path: "/calendar",
+        name: "Calendar",
+        component: Calendar,
+      },
+      {
+        path: "/subject/:id",
+        name: "Subject",
+        component: Subject,
+      },
+    ],
   },
 ];
 
