@@ -1,8 +1,8 @@
-import api from './axios'
+import api from "./axios";
 
 const getCalendar = async () => {
-  const res = await api.get('/calendar')
-  return res
-}
+  const res = await api.get("/calendar");
+  return res;
+};
 
-export { getCalendar }
+export { getCalendar };

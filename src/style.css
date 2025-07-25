@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-body{
+body {
   width: 100vw;
   overflow-x: hidden;
   overflow-y: auto;
@@ -12,7 +12,7 @@ body{
   color: #333;
   box-sizing: border-box;
 }
-#app{
+#app {
   width: 100vw;
   height: 100vh;
 }
