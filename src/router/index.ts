@@ -1,5 +1,5 @@
-// src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
+// @ts-ignore
 import Home from '../page/home/index.vue'
 
 const routes = [
