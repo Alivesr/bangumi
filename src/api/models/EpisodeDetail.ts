@@ -1,0 +1,32 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { EpType } from './EpType';
+export type EpisodeDetail = {
+    id: number;
+    type: EpType;
+    name: string;
+    name_cn: string;
+    /**
+     * 同类条目的排序和集数
+     */
+    sort: number;
+    /**
+     * 条目内的集数, 从`1`开始。非本篇剧集的此字段无意义
+     */
+    ep?: number;
+    airdate: string;
+    comment: number;
+    duration: string;
+    /**
+     * 简介
+     */
+    desc: string;
+    /**
+     * 音乐曲目的碟片数
+     */
+    disc: number;
+    subject_id: number;
+};
+
