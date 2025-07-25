@@ -8,12 +8,12 @@
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
     "openapi": "openapi-typescript-codegen -i http://127.0.0.1:4523/export/openapi/2?version=3.0 -o src/api"
-    
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "tailwindcss": "^4.1.11",
-    "vue": "^3.5.17"
+    "vue": "^3.5.17",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
