@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Calendar from "@/page/home/Calendar/index.vue";
 import Home from "@/page/home/index.vue";
 import Subject from "@/page/home/subject/index.vue";
+import home from "@/page/home/home-p/index.vue";
 const routes = [
   {
     path: "/",
@@ -18,6 +19,11 @@ const routes = [
         path: "/subject/:id",
         name: "Subject",
         component: Subject,
+      },
+      {
+        path: "/",
+        name: "HomeP",
+        component: home,
       },
     ],
   },

@@ -12,6 +12,8 @@ export interface SearchSubjectsParamsRequest {
   keyword: string;
   sort?: string;
   filter?: SearchSubjectsFilter;
+  limit?: number;
+  offset?: number;
 }
 
 /**
