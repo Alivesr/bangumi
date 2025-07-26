@@ -5,9 +5,14 @@ import { ref } from "vue";
 
 const keyword = ref("");
 const router = useRouter();
+const searchType = ref(0);
 const handleSearch = async () => {
-  router.push(`/subject/${keyword.value}`);
+  router.push({
+    path: `/subject/${keyword.value}`,
+    query: searchType.value ? { type: searchType.value.toString() } : {},
+  });
   keyword.value = "";
+  searchType.value = 0;
 };
 </script>
 
@@ -19,11 +24,11 @@ const handleSearch = async () => {
         tabindex="0"
         class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
       >
-        <li><a>动画</a></li>
-        <li><a>书籍</a></li>
-        <li><a>游戏</a></li>
-        <li><a>音乐</a></li>
-        <li><a>三次元</a></li>
+        <li><a @click="searchType = 2">动画</a></li>
+        <li><a @click="searchType = 1">书籍</a></li>
+        <li><a @click="searchType = 4">游戏</a></li>
+        <li><a @click="searchType = 3">音乐</a></li>
+        <li><a @click="searchType = 6">三次元</a></li>
         <li><a>人物</a></li>
       </ul>
     </div>

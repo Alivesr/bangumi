@@ -7,12 +7,16 @@ import type { Subject } from "@/types/subjectType";
 const route = useRoute();
 const searchResult = ref<Subject[]>([]);
 const loading = ref(false);
+const type = route.query.type ? Number(route.query.type) : undefined;
 
 const fetchData = async () => {
   loading.value = true;
   try {
     const currentId = route.params.id as string;
-    const res = await searchSubjects({ keyword: currentId });
+    const res = await searchSubjects({
+      keyword: currentId,
+      filter: { type: type ? [type] : undefined },
+    });
     searchResult.value = res.data || [];
   } finally {
     loading.value = false;
