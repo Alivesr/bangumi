@@ -46,10 +46,10 @@ const selectType = (type: number) => {
 
 <template>
   <div
-    class="flex items-center justify-center h-16 bg-white/10 backdrop-blur-md shadow-xl rounded-b-3xl border border-white/20"
+    class="flex items-center justify-center h-16 bg-white/10 backdrop-blur-md shadow-md rounded-b-3xl border border-white/20"
   >
     <button
-      class="btn m-1 bg-white/20 hover:bg-white/30 text-black border-0 backdrop-blur-sm shadow-sm"
+      class="btn m-1 bg-white/20 hover:bg-white/30 text-black border-0 backdrop-blur-sm shadow-md"
       @click="router.push('/')"
     >
       首页
@@ -58,7 +58,7 @@ const selectType = (type: number) => {
       <div
         tabindex="0"
         role="button"
-        class="btn m-1 bg-white/20 hover:bg-white/30 text-black border-0 backdrop-blur-sm shadow-sm"
+        class="btn m-1 bg-white/20 hover:bg-white/30 text-black border-0 backdrop-blur-sm shadow-md"
       >
         全部
       </div>
