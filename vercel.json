@@ -1,7 +1,15 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/calendar",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/subject/:id",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!api|_next/static|_next/image|favicon.ico).*)",
       "destination": "/index.html"
     }
   ]
