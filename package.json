@@ -13,6 +13,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.11.0",
+    "bangumi-data": "^0.3.177",
     "daisyui": "^5.0.47",
     "tailwindcss": "^4.1.11",
     "vue": "^3.5.17",

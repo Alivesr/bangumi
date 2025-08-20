@@ -28,7 +28,7 @@ const handleSearch = async () => {
   }
 
   router.push({
-    path: `/subject/${keyword.value}`,
+    path: `/subject_search/${keyword.value}`,
     query: searchType.value ? { type: searchType.value.toString() } : {},
   });
   keyword.value = "";
@@ -46,7 +46,7 @@ const selectType = (type: number) => {
 
 <template>
   <div
-    class="flex items-center justify-center h-16 bg-white/10 backdrop-blur-md shadow-md rounded-b-3xl border border-white/20"
+    class="flex items-center justify-center h-16 backdrop-blur-md shadow-md rounded-b-3xl border border-white/20 bg(0,0,0,0.5)"
   >
     <button
       class="btn m-1 bg-white/20 hover:bg-white/30 text-black border-0 backdrop-blur-sm shadow-md"
