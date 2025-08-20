@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "openapi": "openapi-typescript-codegen -i http://127.0.0.1:4523/export/openapi/2?version=3.0 -o src/api",
+    "openapi": "openapi -i http://127.0.0.1:4523/export/openapi/2?version=3.0 -o src/openapi",
     "format": "prettier --write ."
   },
   "dependencies": {
