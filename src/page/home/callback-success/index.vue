@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores";
 
 const router = useRouter();
-const token = ref("");
-const user_id = ref("");
+const authStore = useAuthStore();
+
 const loading = ref(true);
 const error = ref("");
 const countdown = ref(5);
@@ -13,6 +14,7 @@ const getToken = async () => {
   try {
     loading.value = true;
     error.value = "";
+    authStore.setLoading(true);
 
     const res = await fetch("https://bangumi-alpha.vercel.app/api/getToken", {
       credentials: "include", // 关键！发送 Cookie
@@ -29,8 +31,13 @@ const getToken = async () => {
       throw new Error(data.error);
     }
 
-    token.value = data.access_token;
-    user_id.value = data.user_id;
+    // 使用 Pinia store 保存认证信息
+    authStore.setAuth(data.access_token, {
+      id: data.user_id,
+      username: data.username || undefined,
+      nickname: data.nickname || undefined,
+      avatar: data.avatar || undefined,
+    });
 
     // 开始倒计时
     startCountdown();
@@ -39,6 +46,7 @@ const getToken = async () => {
     error.value = err instanceof Error ? err.message : "获取登录信息失败";
   } finally {
     loading.value = false;
+    authStore.setLoading(false);
   }
 };
 
@@ -137,7 +145,18 @@ onMounted(() => {
         <div class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
           <div class="flex items-center justify-between mb-2">
             <span class="text-sm font-medium text-gray-700">用户 ID:</span>
-            <span class="text-sm text-gray-900 font-mono">{{ user_id }}</span>
+            <span class="text-sm text-gray-900 font-mono">{{
+              authStore.user?.id
+            }}</span>
+          </div>
+          <div
+            class="flex items-center justify-between mb-2"
+            v-if="authStore.user?.username"
+          >
+            <span class="text-sm font-medium text-gray-700">用户名:</span>
+            <span class="text-sm text-gray-900">{{
+              authStore.user.username
+            }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-gray-700">登录状态:</span>

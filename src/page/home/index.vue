@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Toast from "@/components/Toast.vue";
+import { useAuthStore } from "@/stores";
 
 const keyword = ref("");
 const router = useRouter();
@@ -9,6 +10,8 @@ const searchType = ref(0);
 const showToast = ref(false);
 const toastMessage = ref("");
 const toastType = ref<"success" | "error" | "warning" | "info">("warning");
+
+const authStore = useAuthStore();
 
 const showToastMessage = (
   message: string,
@@ -45,9 +48,14 @@ const openAuthUrl = () => {
   window.open(authUrl, "_blank");
 };
 
+// 登出
+const handleLogout = () => {
+  authStore.logout();
+  showToastMessage("已成功登出", "success");
+};
+
 // 登录按钮点击事件
 const CLIENT_ID = "bgm443768a588ea35fa5"; // 前端可用 client_id
-// Use environment variable for redirect URI if available, otherwise fallback to production URL
 const REDIRECT_URI = "https://bangumi-alpha.vercel.app/api/callback";
 
 const authUrl = `https://bgm.tv/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
@@ -55,6 +63,11 @@ const authUrl = `https://bgm.tv/oauth/authorize?client_id=${CLIENT_ID}&response_
 // 按钮样式
 const navBtnClass =
   "px-3 py-2 text-gray-300 hover:text-white hover:border-b-2 hover:border-blue-500 transition-all duration-200 focus:outline-none";
+
+// 初始化认证状态
+onMounted(() => {
+  authStore.initializeAuth();
+});
 </script>
 
 <template>
@@ -146,8 +159,60 @@ const navBtnClass =
       <button :class="navBtnClass" @click="router.push('/calendar')">
         每日放送
       </button>
-      <button :class="navBtnClass" @click="openAuthUrl">登录</button>
-      <button :class="navBtnClass" @click="router.push('/user')">我的</button>
+
+      <!-- 登录/用户状态 -->
+      <div v-if="!authStore.isAuthenticated" class="flex items-center gap-2">
+        <button :class="navBtnClass" @click="openAuthUrl">登录</button>
+      </div>
+
+      <div v-else class="flex items-center gap-2">
+        <!-- 用户信息 -->
+        <div class="flex items-center gap-2 text-gray-300">
+          <span class="text-sm"
+            >欢迎，{{ authStore.user?.username || authStore.user?.id }}</span
+          >
+        </div>
+
+        <!-- 用户菜单 -->
+        <div class="dropdown relative">
+          <button :class="navBtnClass" class="flex items-center gap-1">
+            <span>我的</span>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+          <ul
+            class="dropdown-content absolute right-0 menu bg-gray-800 rounded-lg w-48 p-2 shadow-lg z-10 mt-1"
+          >
+            <li>
+              <a
+                @click="router.push('/user')"
+                class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded"
+              >
+                个人中心
+              </a>
+            </li>
+            <li>
+              <a
+                @click="handleLogout"
+                class="block px-4 py-2 text-red-400 hover:bg-gray-700 hover:text-red-300 rounded"
+              >
+                退出登录
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 
