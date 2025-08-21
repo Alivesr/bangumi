@@ -5,6 +5,7 @@ import Home from "@/page/home/index.vue";
 import Subject_Search from "@/page/home/subject_search/index.vue";
 import home from "@/page/home/home-p/index.vue";
 import Subject from "@/page/home/subject/index.vue";
+import User from "@/page/home/user/index.vue";
 const routes = [
   {
     path: "/",
@@ -30,6 +31,11 @@ const routes = [
         path: "subject/:id",
         name: "Subject",
         component: Subject,
+      },
+      {
+        path: "user",
+        name: "User",
+        component: User,
       },
     ],
   },
