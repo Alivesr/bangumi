@@ -2,11 +2,19 @@
 import { onMounted, ref } from "vue";
 const token = ref("");
 const user_id = ref("");
+
+const getToken = async () => {
+  // Use relative path to avoid CORS issues in development
+  const res = await fetch("/api/getToken", {
+    credentials: "include", // 关键！发送 Cookie
+  });
+  const data = await res.json();
+  console.log(data);
+  token.value = data.access_token;
+  user_id.value = data.user_id;
+};
 onMounted(() => {
-  console.log("Callback Success");
-  token.value = localStorage.getItem("token") || "";
-  user_id.value = localStorage.getItem("user_id") || "";
-  console.log(token.value, user_id.value);
+  getToken();
 });
 </script>
 

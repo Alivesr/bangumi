@@ -1,8 +1,12 @@
 import axios from "axios";
 import cookie from "cookie";
+import { cors, runMiddleware } from "./cors";
 
 export default async function handler(req, res) {
   const { code } = req.query;
+
+  // 运行 CORS 中间件
+  await runMiddleware(req, res, cors);
 
   if (!code) {
     return res.status(400).json({ error: "缺少 code 参数" });
