@@ -94,11 +94,56 @@ watch([() => route.params.id, () => route.query.type], () => {
 
     <!-- 右侧内容 -->
     <div class="flex-1">
-      <ul class="list w-full bg-base-100 rounded-box shadow-md">
+      <!-- 加载状态 -->
+      <div
+        v-if="loading"
+        class="flex flex-col items-center justify-center py-16"
+      >
+        <div
+          class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-6"
+        >
+          <div
+            class="w-10 h-10 border-t-2 border-gray-500 border-solid rounded-full animate-spin"
+          ></div>
+        </div>
+        <p class="text-gray-600 text-lg font-medium">正在搜索条目，请稍候...</p>
+      </div>
+
+      <!-- 搜索结果 -->
+      <ul v-else class="list w-full bg-base-100 rounded-box shadow-md">
+        <!-- 搜索结果统计 -->
         <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
           {{ total }} 条结果 (第 {{ currentPage }} 页，共
           {{ Math.ceil(total / pageSize) }} 页)
         </li>
+
+        <!-- 无搜索结果提示 -->
+        <li
+          v-if="searchResult.length === 0"
+          class="flex flex-col items-center justify-center py-16"
+        >
+          <div
+            class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-6"
+          >
+            <svg
+              class="w-10 h-10 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+          </div>
+          <p class="text-gray-600 text-lg font-medium">未找到相关条目</p>
+          <p class="text-gray-500 mt-2">请尝试使用其他关键词进行搜索</p>
+        </li>
+
+        <!-- 搜索结果列表 -->
         <li
           class="list-row"
           v-for="item in searchResult"
@@ -169,19 +214,22 @@ watch([() => route.params.id, () => route.query.type], () => {
         </li>
       </ul>
       <!-- 分页按钮 -->
-      <div v-if="total > pageSize" class="flex justify-center mt-4 mb-4 gap-2">
+      <div
+        v-if="!loading && total > pageSize"
+        class="flex justify-center mt-6 mb-6 gap-2"
+      >
         <button
-          class="btn btn-sm bg-white"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="currentPage === 1"
           @click="handlePageChange(currentPage - 1)"
         >
           上一页
         </button>
-        <span class="flex items-center px-4">
+        <span class="flex items-center px-4 text-gray-600">
           {{ currentPage }} / {{ Math.ceil(total / pageSize) }}
         </span>
         <button
-          class="btn btn-sm bg-white"
+          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="currentPage >= Math.ceil(total / pageSize)"
           @click="handlePageChange(currentPage + 1)"
         >
@@ -191,3 +239,17 @@ watch([() => route.params.id, () => route.query.type], () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
