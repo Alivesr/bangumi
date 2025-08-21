@@ -1,23 +1,32 @@
 import cookie from "cookie";
-import { cors, runMiddleware } from "./cors";
+import Cors from "cors";
+
+// 初始化 CORS
+const cors = Cors({
+  origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
+  credentials: true,
+});
+
+// 封装函数在 Serverless 中运行中间件
+function runMiddleware(req, res, fn) {
+  return new Promise((resolve, reject) => {
+    fn(req, res, (result) => {
+      if (result instanceof Error) reject(result);
+      else resolve(result);
+    });
+  });
+}
 
 export default async function handler(req, res) {
-  // 运行 CORS 中间件
   await runMiddleware(req, res, cors);
 
   const cookies = cookie.parse(req.headers.cookie || "");
-
   const token = cookies.token;
   const user_id = cookies.user_id;
 
-  if (!token) {
-    res.status(401).json({ error: "未登录" });
-    return;
+  if (!token || !user_id) {
+    return res.status(401).json({ error: "未登录或 Cookie 失效" });
   }
 
-  // Set proper headers for CORS
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Origin", req.headers.origin || "*");
-  
   res.status(200).json({ access_token: token, user_id });
 }
