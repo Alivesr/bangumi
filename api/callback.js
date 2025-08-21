@@ -67,8 +67,8 @@ export default async function handler(req, res) {
     ]);
 
     // 重定向前端成功页
-    res.redirect("http://localhost:5173/callback-success");
-    // res.redirect(`${process.env.FRONTEND_URL}/callback-success`);
+    // res.redirect("http://localhost:5173/callback-success");
+    res.redirect(`${process.env.FRONTEND_URL}/callback-success`);
   } catch (err) {
     console.error("Callback error:", err.response?.data || err.message);
     res.status(500).json({
