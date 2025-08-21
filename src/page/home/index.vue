@@ -45,14 +45,13 @@ const openAuthUrl = () => {
   window.open(authUrl, "_blank");
 };
 
-const CLIENT_ID = "bgm443768a588ea35fa5";
-const REDIRECT_URI = "http://localhost:3000/callback";
-const STATE = "xyz";
+// 登录按钮点击事件
+const CLIENT_ID = "bgm443768a588ea35fa5"; // 前端可用 client_id
+const REDIRECT_URI = "https://my-bangumi.vercel.app/api/callback";
 
-const authUrl = `https://bgm.tv/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(
-  REDIRECT_URI,
-)}&state=${STATE}`;
+const authUrl = `https://bgm.tv/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
 
+// 按钮样式
 const navBtnClass =
   "px-3 py-2 text-gray-300 hover:text-white hover:border-b-2 hover:border-blue-500 transition-all duration-200 focus:outline-none";
 </script>
