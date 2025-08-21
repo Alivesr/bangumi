@@ -44,7 +44,8 @@ export default async function handler(req, res) {
     ]);
 
     // 重定向前端，不带 token
-    res.redirect(`${process.env.FRONTEND_URL}/callback-success`);
+    // res.redirect(`${process.env.FRONTEND_URL}/callback-success`);
+    res.redirect("http://localhost:5173/callback-success");
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ error: "Token 获取失败" });
