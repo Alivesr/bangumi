@@ -47,7 +47,7 @@ const openAuthUrl = () => {
 
 // 登录按钮点击事件
 const CLIENT_ID = "bgm443768a588ea35fa5"; // 前端可用 client_id
-const REDIRECT_URI = "https://my-bangumi.vercel.app/api/callback";
+const REDIRECT_URI = "https://bangumi-alpha.vercel.app/api/callback";
 
 const authUrl = `https://bgm.tv/oauth/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
 
