@@ -5,7 +5,7 @@ const user_id = ref("");
 
 const getToken = async () => {
   // Use relative path to avoid CORS issues in development
-  const res = await fetch("/api/getToken", {
+  const res = await fetch("https://bangumi-alpha.vercel.app/api/getToken", {
     credentials: "include", // 关键！发送 Cookie
   });
   const data = await res.json();
