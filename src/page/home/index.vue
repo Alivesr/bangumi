@@ -3,7 +3,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import Toast from "@/components/Toast.vue";
 import { useAuthStore } from "@/stores";
-
+import { Service } from "@/openapi/services/Service";
+import type { User } from "@/openapi/models/User";
 const keyword = ref("");
 const router = useRouter();
 const searchType = ref(0);
@@ -11,7 +12,7 @@ const showToast = ref(false);
 const toastMessage = ref("");
 const toastType = ref<"success" | "error" | "warning" | "info">("warning");
 const isMobileMenuOpen = ref(false);
-
+const userInfo = ref<User | null>(null);
 const authStore = useAuthStore();
 
 const showToastMessage = (
@@ -76,9 +77,16 @@ const navBtnClass =
   "px-3 py-2 text-gray-300 hover:text-white transition-all duration-300 focus:outline-none";
 
 // 初始化认证状态
+
+// 获取头像
+const getUserInfo = async () => {
+  const res = await Service.getUserByName(authStore.user?.id || "");
+  userInfo.value = res;
+};
+
 onMounted(() => {
   authStore.initializeAuth();
-  console.log(authStore);
+  getUserInfo();
 });
 </script>
 
@@ -348,7 +356,7 @@ onMounted(() => {
       </button>
 
       <!-- 登录/用户状态 -->
-      <div v-if="!authStore.isAuthenticated" class="flex items-center gap-2">
+      <div v-if="!userInfo" class="flex items-center gap-2">
         <button
           :class="navBtnClass"
           @click="openAuthUrl"
@@ -361,17 +369,13 @@ onMounted(() => {
       <div v-else class="flex items-center gap-3">
         <!-- 用户信息 -->
         <div class="flex items-center gap-2 text-white">
-          <div
-            class="w-9 h-9 rounded-full bg-blue-400 flex items-center justify-center"
-          >
-            <span class="font-bold text-white text-sm">{{
-              authStore.user?.username?.charAt(0) ||
-              authStore.user?.id?.toString().charAt(0) ||
-              "U"
-            }}</span>
-          </div>
+          <img
+            :src="userInfo?.avatar.small"
+            :alt="userInfo?.nickname"
+            class="w-9 h-9 rounded-full object-cover"
+          />
           <span class="text-sm font-medium hidden md:inline">{{
-            authStore.user?.username || authStore.user?.id
+            userInfo?.nickname
           }}</span>
         </div>
 

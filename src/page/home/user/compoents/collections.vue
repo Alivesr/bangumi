@@ -4,21 +4,58 @@ import type { SubjectCollectionType } from "@/openapi/models/SubjectCollectionTy
 import type { UserSubjectCollection } from "@/openapi/models/UserSubjectCollection";
 
 import { useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+
 const collections = ref<UserSubjectCollection[]>([]);
 const route = useRoute();
 const router = useRouter();
 const username = route.params.id as string;
-const handleClick = async (type: string) => {
-  const res = await Service.getUserCollectionsByUsername(
-    username,
-    undefined,
-    type as unknown as SubjectCollectionType,
-  );
-  collections.value = res.data ?? [];
-  console.log(collections.value);
+const loading = ref(false);
+// 分页相关
+const currentPage = ref(1);
+const pageSize = ref(20);
+const total = ref(0);
+const type = ref<SubjectCollectionType | undefined>(undefined);
+
+// 计算总页数
+const totalPages = computed(() => {
+  return Math.ceil(total.value / pageSize.value) || 1;
+});
+
+const fetchData = async (page = 1) => {
+  loading.value = true;
+  try {
+    const offset = (page - 1) * pageSize.value;
+    const res = await Service.getUserCollectionsByUsername(
+      username,
+      undefined,
+      type.value,
+      pageSize.value,
+      offset,
+    );
+    collections.value = res.data || [];
+    total.value = res.total || 0;
+    currentPage.value = page;
+  } catch (error) {
+    console.error("获取收藏列表失败:", error);
+  } finally {
+    loading.value = false;
+  }
 };
+
+const handlePageChange = (page: number) => {
+  fetchData(page);
+};
+
+const handleClick = async (collectionType: string) => {
+  // 更新类型并重置页码
+  type.value = collectionType as unknown as SubjectCollectionType;
+  currentPage.value = 1;
+  // 使用统一的fetchData方法获取数据
+  await fetchData(1);
+};
+
 onMounted(() => {
   handleClick("1");
 });
@@ -84,8 +121,17 @@ onMounted(() => {
       </div>
     </div>
 
+    <!-- 加载动画 -->
+    <div v-if="loading" class="flex flex-col justify-center items-center py-10">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+      ></div>
+      <div class="text-gray-500 text-sm mt-2">正在加载...</div>
+    </div>
+
     <!-- 收藏内容展示 -->
     <div
+      v-else-if="collections.length > 0"
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 cursor-pointer"
     >
       <div
@@ -113,11 +159,29 @@ onMounted(() => {
     </div>
 
     <!-- 空状态 -->
+    <div v-else class="text-center py-10 text-gray-500">暂无收藏内容</div>
+    <!-- 页码切换 -->
     <div
-      v-if="collections.length === 0"
-      class="text-center py-10 text-gray-500"
+      v-if="!loading && total > pageSize"
+      class="flex justify-center mt-6 mb-6 gap-2 pb-5"
     >
-      暂无收藏内容
+      <button
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="currentPage === 1"
+        @click="handlePageChange(currentPage - 1)"
+      >
+        上一页
+      </button>
+      <span class="flex items-center px-4 text-gray-600">
+        {{ currentPage }} / {{ totalPages }}
+      </span>
+      <button
+        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        :disabled="currentPage >= totalPages"
+        @click="handlePageChange(currentPage + 1)"
+      >
+        下一页
+      </button>
     </div>
   </div>
 </template>
