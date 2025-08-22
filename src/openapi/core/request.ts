@@ -210,13 +210,26 @@ export const sendRequest = async (
         signal: controller.signal,
     };
 
+    // 设置请求超时（10秒）
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     if (config.WITH_CREDENTIALS) {
         request.credentials = config.CREDENTIALS;
     }
 
-    onCancel(() => controller.abort());
+    onCancel(() => {
+        clearTimeout(timeoutId);
+        controller.abort();
+    });
 
-    return await fetch(url, request);
+    try {
+        const response = await fetch(url, request);
+        clearTimeout(timeoutId);
+        return response;
+    } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+    }
 };
 
 export const getResponseHeader = (response: Response, responseHeader?: string): string | undefined => {
