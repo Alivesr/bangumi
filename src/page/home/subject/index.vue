@@ -68,7 +68,7 @@ const reloadSubject = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center box-border">
+  <div class="flex flex-col items-center justify-center box-border pt-5">
     <!-- 加载状态 -->
     <div v-if="loading" class="flex flex-col w-full items-center">
       <!-- 标题骨架屏 -->
@@ -76,30 +76,42 @@ const reloadSubject = async () => {
         <div class="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
         <div class="h-4 bg-gray-200 rounded w-32 ml-2 mb-1 animate-pulse"></div>
       </div>
-      
+
       <!-- 导航栏骨架屏 -->
       <div class="flex flex-wrap w-9/12 mb-6">
-        <div v-for="i in 5" :key="i" class="h-8 bg-gray-200 rounded w-16 mr-2 animate-pulse"></div>
+        <div
+          v-for="i in 5"
+          :key="i"
+          class="h-8 bg-gray-200 rounded w-16 mr-2 animate-pulse"
+        ></div>
       </div>
-      
+
       <!-- 主体骨架屏 -->
       <div class="w-9/12 flex gap-8">
         <!-- 图片骨架屏 -->
         <div class="w-64 flex-shrink-0" style="min-width: 16rem">
           <div class="h-96 rounded-xl bg-gray-200 animate-pulse"></div>
-          
+
           <!-- 基本信息骨架屏 -->
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-4">
+          <div
+            class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mt-4"
+          >
             <div class="h-6 bg-gray-200 rounded w-24 mb-4 animate-pulse"></div>
             <div class="space-y-3">
-              <div v-for="i in 4" :key="i" class="py-2 border-b border-gray-100 last:border-b-0">
-                <div class="h-4 bg-gray-200 rounded w-16 mb-2 animate-pulse"></div>
+              <div
+                v-for="i in 4"
+                :key="i"
+                class="py-2 border-b border-gray-100 last:border-b-0"
+              >
+                <div
+                  class="h-4 bg-gray-200 rounded w-16 mb-2 animate-pulse"
+                ></div>
                 <div class="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <!-- 简介骨架屏 -->
         <div class="flex-1 min-w-0 space-y-4">
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
@@ -110,17 +122,23 @@ const reloadSubject = async () => {
               <div class="h-4 bg-gray-200 rounded animate-pulse w-4/6"></div>
             </div>
           </div>
-          
+
           <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div class="h-6 bg-gray-200 rounded w-16 mb-4 animate-pulse"></div>
             <div class="flex flex-wrap gap-2">
-              <div v-for="i in 5" :key="i" class="h-6 bg-gray-200 rounded-full w-16 animate-pulse"></div>
+              <div
+                v-for="i in 5"
+                :key="i"
+                class="h-6 bg-gray-200 rounded-full w-16 animate-pulse"
+              ></div>
             </div>
           </div>
         </div>
-        
+
         <!-- 观看记录骨架屏 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64">
+        <div
+          class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64"
+        >
           <div class="h-6 bg-gray-200 rounded w-24 mb-4 animate-pulse"></div>
           <div class="space-y-2">
             <div class="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
@@ -128,26 +146,44 @@ const reloadSubject = async () => {
         </div>
       </div>
     </div>
-    
+
     <!-- 错误状态 -->
-    <div v-else-if="error" class="flex flex-col items-center justify-center py-20 w-full">
-      <div class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6">
-        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <div
+      v-else-if="error"
+      class="flex flex-col items-center justify-center py-20 w-full"
+    >
+      <div
+        class="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6"
+      >
+        <svg
+          class="w-10 h-10 text-red-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
         </svg>
       </div>
       <p class="text-gray-600 text-lg font-medium mb-2">加载失败</p>
       <p class="text-gray-500 text-sm mb-6">{{ error }}</p>
-      <button 
+      <button
         @click="reloadSubject"
         class="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-medium"
       >
         重新加载
       </button>
     </div>
-    
+
     <!-- 内容 -->
-    <div v-else class="flex flex-col items-center justify-center box-border w-full">
+    <div
+      v-else
+      class="flex flex-col items-center justify-center box-border w-full"
+    >
       <!-- 标题 -->
       <div class="flex justify-start w-9/12 h-8 leading-8 items-end ml-2">
         <span class="text-xl font-extrabold">
@@ -239,12 +275,21 @@ const reloadSubject = async () => {
 
 <style scoped>
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 .animate-spin {
   animation: spin 1s linear infinite;

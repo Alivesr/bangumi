@@ -78,6 +78,7 @@ const navBtnClass =
 // 初始化认证状态
 onMounted(() => {
   authStore.initializeAuth();
+  console.log(authStore);
 });
 </script>
 
@@ -400,7 +401,7 @@ onMounted(() => {
           >
             <li>
               <button
-                @click="router.push('/user')"
+                @click="router.push(`/user/${authStore.user?.id}`)"
                 class="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-colors duration-200"
               >
                 个人中心
