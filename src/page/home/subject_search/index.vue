@@ -185,6 +185,7 @@ watch([() => route.params.id, () => route.query.type], () => {
                 {{ tag }}
               </div>
             </div>
+            <!-- 评分 -->
             <div class="flex items-center gap-2 mt-2">
               <div class="rating rating-sm rating-half pl-0 ml-0">
                 <template v-for="i in 10">

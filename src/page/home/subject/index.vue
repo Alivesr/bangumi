@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getSubjectDetail } from "@/api/subject";
 import type { Response, Kv } from "@/types/subject/getSubjectTypes";
+import ViewBox from "./components/viewbox.vue";
 
 const route = useRoute();
 const id = Number(route.params.id);
@@ -257,17 +258,7 @@ const reloadSubject = async () => {
           </div>
         </div>
         <!-- 观看记录 -->
-        <div
-          class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64"
-        >
-          <h3 class="text-lg font-semibold text-gray-800 mb-3">观看记录</h3>
-          <div class="text-gray-600">
-            <div class="flex items-center gap-2">
-              <span class="text-gray-500">观看时间：</span>
-              <span class="font-medium">2025-01-01</span>
-            </div>
-          </div>
-        </div>
+        <ViewBox />
       </div>
     </div>
   </div>

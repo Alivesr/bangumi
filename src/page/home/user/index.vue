@@ -2,7 +2,7 @@
 import { Service } from "@/openapi/services/Service";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
-import Collections from "./compoents/collections.vue";
+import Collections from "./components/collections.vue";
 
 interface UserInfo {
   avatar: {
