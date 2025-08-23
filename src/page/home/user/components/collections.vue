@@ -50,7 +50,7 @@ const handlePageChange = (page: number) => {
 
 const handleClick = async (collectionType: string) => {
   // 更新类型并重置页码
-  type.value = collectionType as unknown as SubjectCollectionType;
+  type.value = parseInt(collectionType) as SubjectCollectionType;
   currentPage.value = 1;
   // 使用统一的fetchData方法获取数据
   await fetchData(1);
@@ -92,7 +92,7 @@ onMounted(() => {
       <div
         :class="[
           'px-4 py-2 text-base rounded-full cursor-pointer transition-colors',
-          type === '1' 
+          type === 1 
             ? 'bg-blue-500 text-white shadow-md' 
             : 'bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-600'
         ]"
@@ -103,7 +103,7 @@ onMounted(() => {
       <div
         :class="[
           'px-4 py-2 text-base rounded-full cursor-pointer transition-colors',
-          type === '2' 
+          type === 2 
             ? 'bg-green-500 text-white shadow-md' 
             : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-600'
         ]"
@@ -114,7 +114,7 @@ onMounted(() => {
       <div
         :class="[
           'px-4 py-2 text-base rounded-full cursor-pointer transition-colors',
-          type === '3' 
+          type === 3 
             ? 'bg-yellow-500 text-white shadow-md' 
             : 'bg-gray-100 text-gray-700 hover:bg-yellow-100 hover:text-yellow-600'
         ]"
@@ -125,7 +125,7 @@ onMounted(() => {
       <div
         :class="[
           'px-4 py-2 text-base rounded-full cursor-pointer transition-colors',
-          type === '4' 
+          type === 4 
             ? 'bg-gray-500 text-white shadow-md' 
             : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:text-gray-600'
         ]"
@@ -136,7 +136,7 @@ onMounted(() => {
       <div
         :class="[
           'px-4 py-2 text-base rounded-full cursor-pointer transition-colors',
-          type === '5' 
+          type === 5 
             ? 'bg-red-500 text-white shadow-md' 
             : 'bg-gray-100 text-gray-700 hover:bg-red-100 hover:text-red-600'
         ]"
