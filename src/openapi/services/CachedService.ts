@@ -18,6 +18,28 @@ import type { IndexBasicInfo } from '../models/IndexBasicInfo';
 import type { IndexSubjectAddInfo } from '../models/IndexSubjectAddInfo';
 import type { IndexSubjectEditInfo } from '../models/IndexSubjectEditInfo';
 
+// 导入模型类型
+import type { Subject } from '../models/Subject';
+import type { Paged_Subject } from '../models/Paged_Subject';
+import type { RelatedPerson } from '../models/RelatedPerson';
+import type { RelatedCharacter } from '../models/RelatedCharacter';
+import type { v0_subject_relation } from '../models/v0_subject_relation';
+import type { Character } from '../models/Character';
+import type { v0_RelatedSubject } from '../models/v0_RelatedSubject';
+import type { CharacterPerson } from '../models/CharacterPerson';
+import type { PersonDetail } from '../models/PersonDetail';
+import type { PersonCharacter } from '../models/PersonCharacter';
+import type { Paged_Episode } from '../models/Paged_Episode';
+import type { EpisodeDetail } from '../models/EpisodeDetail';
+import type { Paged_UserCollection } from '../models/Paged_UserCollection';
+import type { UserSubjectCollection } from '../models/UserSubjectCollection';
+import type { Page } from '../models/Page';
+import type { UserEpisodeCollection } from '../models/UserEpisodeCollection';
+import type { Paged_UserCharacterCollection } from '../models/Paged_UserCharacterCollection';
+import type { UserCharacterCollection } from '../models/UserCharacterCollection';
+import type { Paged_UserPersonCollection } from '../models/Paged_UserPersonCollection';
+import type { UserPersonCollection } from '../models/UserPersonCollection';
+
 // 默认缓存时间配置
 const CACHE_TTL = {
   // 短缓存：1分钟
@@ -55,7 +77,7 @@ export class CachedService {
     month?: number,
     limit: number = 30,
     offset?: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Paged_Subject> {
     // 根据 offset 决定缓存时间
     const ttl = offset === 0 || offset === undefined ? CACHE_TTL.VERY_LONG : CACHE_TTL.LONG;
     
@@ -87,7 +109,7 @@ export class CachedService {
    */
   public static getSubjectById(
     subjectId: SubjectID,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Subject> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/subjects/{subject_id}',
@@ -107,7 +129,7 @@ export class CachedService {
    */
   public static getRelatedPersonsBySubjectId(
     subjectId: SubjectID,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<RelatedPerson>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/subjects/{subject_id}/persons',
@@ -127,7 +149,7 @@ export class CachedService {
    */
   public static getRelatedCharactersBySubjectId(
     subjectId: SubjectID,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<RelatedCharacter>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/subjects/{subject_id}/characters',
@@ -147,7 +169,7 @@ export class CachedService {
    */
   public static getRelatedSubjectsBySubjectId(
     subjectId: SubjectID,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<v0_subject_relation>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/subjects/{subject_id}/subjects',
@@ -168,7 +190,7 @@ export class CachedService {
    */
   public static getCharacterById(
     characterId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Character> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/characters/{character_id}',
@@ -188,7 +210,7 @@ export class CachedService {
    */
   public static getRelatedSubjectsByCharacterId(
     characterId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<v0_RelatedSubject>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/characters/{character_id}/subjects',
@@ -208,7 +230,7 @@ export class CachedService {
    */
   public static getRelatedPersonsByCharacterId(
     characterId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<CharacterPerson>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/characters/{character_id}/persons',
@@ -229,7 +251,7 @@ export class CachedService {
    */
   public static getPersonById(
     personId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<PersonDetail> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/persons/{person_id}',
@@ -249,7 +271,7 @@ export class CachedService {
    */
   public static getRelatedSubjectsByPersonId(
     personId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<v0_RelatedSubject>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/persons/{person_id}/subjects',
@@ -269,7 +291,7 @@ export class CachedService {
    */
   public static getRelatedCharactersByPersonId(
     personId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Array<PersonCharacter>> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/persons/{person_id}/characters',
@@ -295,7 +317,7 @@ export class CachedService {
     type?: EpType,
     limit: number = 100,
     offset?: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Paged_Episode> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/episodes',
@@ -318,7 +340,7 @@ export class CachedService {
    */
   public static getEpisodeById(
     episodeId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<EpisodeDetail> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/episodes/{episode_id}',
@@ -346,7 +368,7 @@ export class CachedService {
     type?: SubjectCollectionType,
     limit: number = 30,
     offset?: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Paged_UserCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections',
@@ -374,7 +396,7 @@ export class CachedService {
   public static getUserCollection(
     username: string,
     subjectId: SubjectID,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<UserSubjectCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections/{subject_id}',
@@ -401,7 +423,9 @@ export class CachedService {
     offset?: number,
     limit: number = 100,
     episodeType?: EpType,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<(Page & {
+        data?: Array<UserEpisodeCollection>;
+    })> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/-/collections/{subject_id}/episodes',
@@ -426,7 +450,7 @@ export class CachedService {
    */
   public static getUserEpisodeCollection(
     episodeId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<UserEpisodeCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/-/collections/-/episodes/{episode_id}',
@@ -446,7 +470,7 @@ export class CachedService {
    */
   public static getUserCharacterCollections(
     username: string,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Paged_UserCharacterCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections/-/characters',
@@ -468,7 +492,7 @@ export class CachedService {
   public static getUserCharacterCollection(
     username: string,
     characterId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<UserCharacterCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections/-/characters/{character_id}',
@@ -489,7 +513,7 @@ export class CachedService {
    */
   public static getUserPersonCollections(
     username: string,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<Paged_UserPersonCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections/-/persons',
@@ -511,7 +535,7 @@ export class CachedService {
   public static getUserPersonCollection(
     username: string,
     personId: number,
-  ): CancelablePromise<any> {
+  ): CancelablePromise<UserPersonCollection> {
     return cachedRequest(OpenAPI, {
       method: 'GET',
       url: '/v0/users/{username}/collections/-/persons/{person_id}',
