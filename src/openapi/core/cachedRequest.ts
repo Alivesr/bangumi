@@ -8,7 +8,7 @@ import type { OpenAPIConfig } from "./OpenAPI";
 import { request as __request } from "./request";
 import OpenAPICache from "./Cache";
 import type { CachedApiRequestOptions } from "./CachedApiRequestOptions";
-import type { CancelablePromise } from "./CancelablePromise";
+import { CancelablePromise } from "./CancelablePromise";
 
 // 默认缓存时间：5分钟
 const DEFAULT_TTL = 5 * 60 * 1000;
