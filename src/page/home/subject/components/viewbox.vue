@@ -18,13 +18,21 @@ const getUserCollection = async () => {
   );
   return res;
 };
-const { data, isUpdating, isLoading, error, refresh, clearCache, showSkeleton } =
-  useSilentUpdate({
-    fetchFn: getUserCollection,
-    cacheKey: `user_collection_${authStore.user?.username}_${route.params.id}`,
-    cacheTime: 5 * 60 * 1000, // 5分钟缓存
-    immediate: true,
-  });
+const {
+  data,
+  isUpdating,
+  isLoading,
+  error,
+  refresh,
+  clearCache,
+  showSkeleton,
+  shouldShowContent,
+} = useSilentUpdate({
+  fetchFn: getUserCollection,
+  cacheKey: `user_collection_${authStore.user?.username}_${route.params.id}`,
+  cacheTime: 5 * 60 * 1000, // 5分钟缓存
+  immediate: true,
+});
 
 watch(isLoading, (val) => {
   console.log("isLoading changed:", val);
@@ -50,39 +58,8 @@ watch(isLoading, (val) => {
     </div>
   </template>
 
-  <!-- 错误状态 -->
-  <template v-else-if="!showSkeleton && error">
-    <div
-      class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300"
-      key="error"
-    >
-      <div class="flex flex-col items-center justify-center py-4">
-        <div
-          class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3"
-        >
-          <svg
-            class="w-6 h-6 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
-        </div>
-        <div class="text-red-500 text-sm font-medium text-center">
-          {{ error }}
-        </div>
-      </div>
-    </div>
-  </template>
-
-  <!-- 内容展示 -->
-  <template v-else-if="!showSkeleton && data">
+  <!-- 内容展示（包括错误状态，但保持固定布局） -->
+  <template v-else-if="shouldShowContent">
     <div
       class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300 hover:shadow-md"
       key="content"
@@ -103,7 +80,39 @@ watch(isLoading, (val) => {
         </svg>
         我的收藏
       </h3>
-      <div class="space-y-3">
+
+      <!-- 错误状态显示 -->
+      <div v-if="error" class="flex flex-col items-center justify-center py-4">
+        <div
+          class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3"
+        >
+          <svg
+            class="w-6 h-6 text-red-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </div>
+        <div class="text-red-500 text-sm font-medium text-center mb-3">
+          {{ error.message }}
+        </div>
+        <button
+          @click="refresh"
+          class="px-4 py-2 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors duration-200"
+        >
+          重试
+        </button>
+      </div>
+
+      <!-- 正常数据展示 -->
+      <div v-else class="space-y-3">
         <div
           class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
         >
