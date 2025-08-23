@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { Service } from "@/openapi";
 import { useLocalStorageFetch } from "@/hook/useLocalStorageFetch";
+import Test1 from "./components/test1.vue";
 
 const CACHE_KEY = "user_collection_657018_292970";
 
@@ -24,5 +25,6 @@ onMounted(() => {
   <div>
     <div v-if="item">{{ item?.subject?.name + "9999" }}</div>
     <button @click="handleRefresh">刷新</button>
+    <Test1 />
   </div>
 </template>

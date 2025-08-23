@@ -14,7 +14,8 @@ interface UseSilentUpdateReturn<T> {
   error: Ref<Error | null>;
   refresh: () => Promise<void>;
   clearCache: () => void;
-  showSkeleton: Ref<boolean>; // 控制是否显示骨架屏
+  showSkeleton: Ref<boolean>;
+  shouldShowContent: Ref<boolean>;
 }
 
 export function useSilentUpdate<T>({
@@ -28,7 +29,8 @@ export function useSilentUpdate<T>({
   const isLoading = ref(false);
   const error = ref<Error | null>(null);
   const hasLoadedOnce = ref(false);
-  const showSkeleton = ref(true); // 默认显示骨架屏 // 用于标记是否第一次加载
+  const showSkeleton = ref(true);
+  const shouldShowContent = ref(false);
 
   const getCachedData = (): {
     data: T | null;
@@ -50,8 +52,10 @@ export function useSilentUpdate<T>({
   };
 
   const saveToCache = (payload: { data: T | null; error: Error | null }) => {
-    const cacheObject = { ...payload, expireTime: Date.now() + cacheTime };
-    localStorage.setItem(cacheKey, JSON.stringify(cacheObject));
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({ ...payload, expireTime: Date.now() + cacheTime }),
+    );
   };
 
   const clearCache = () => {
@@ -59,10 +63,11 @@ export function useSilentUpdate<T>({
     data.value = null;
     error.value = null;
     hasLoadedOnce.value = false;
+    shouldShowContent.value = false;
+    showSkeleton.value = true;
   };
 
   const fetchData = async (isBackgroundUpdate = false) => {
-    // 首次加载且非后台更新时显示 loading
     if (!isBackgroundUpdate && !hasLoadedOnce.value) isLoading.value = true;
     if (isBackgroundUpdate) isUpdating.value = true;
 
@@ -72,16 +77,15 @@ export function useSilentUpdate<T>({
       error.value = null;
       saveToCache({ data: result, error: null });
     } catch (err: any) {
-      // 只缓存简化后的错误信息
-      const simpleErr = new Error(err?.message || "请求失败");
-      error.value = simpleErr;
       data.value = null;
-      saveToCache({ data: null, error: simpleErr });
+      error.value = new Error("无法获取收藏信息"); // 自定义错误提示
+      saveToCache({ data: null, error: error.value });
     } finally {
       isLoading.value = false;
       isUpdating.value = false;
-      hasLoadedOnce.value = true; // 标记首次加载完成
-      showSkeleton.value = false; // 首次加载完成后不再显示骨架屏
+      hasLoadedOnce.value = true;
+      showSkeleton.value = false;
+      shouldShowContent.value = true;
     }
   };
 
@@ -94,26 +98,24 @@ export function useSilentUpdate<T>({
     if (cached) {
       data.value = cached.data;
       error.value = cached.error;
-      showSkeleton.value = false; // 有缓存数据时不显示骨架屏
-      fetchData(true).catch(() => {}); // 后台静默刷新
+      showSkeleton.value = false;
+      shouldShowContent.value = true;
+      fetchData(true).catch(() => {}); // 静默刷新
     } else {
-      await fetchData(false); // 首次加载
+      await fetchData(false);
     }
   };
 
-  if (immediate) {
-    onMounted(() => {
-      initialize();
-    });
-  }
+  if (immediate) onMounted(initialize);
 
   return {
-    data,
+    data: data as Ref<T | null>,
     isUpdating,
     isLoading,
     error,
     refresh,
     clearCache,
     showSkeleton,
+    shouldShowContent,
   };
 }

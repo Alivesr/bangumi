@@ -42,7 +42,7 @@ watch(isLoading, (val) => {
 </script>
 
 <template>
-  <!-- 加载状态（首次加载且无缓存时显示骨架屏） -->
+  <!-- 首次加载骨架屏 -->
   <template v-if="showSkeleton && isLoading">
     <div
       class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300"
@@ -58,11 +58,10 @@ watch(isLoading, (val) => {
     </div>
   </template>
 
-  <!-- 内容展示（包括错误状态，但保持固定布局） -->
+  <!-- 内容区（固定显示，无闪烁） -->
   <template v-else-if="shouldShowContent">
     <div
       class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300 hover:shadow-md"
-      key="content"
     >
       <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
         <svg
@@ -76,13 +75,13 @@ watch(isLoading, (val) => {
             stroke-linejoin="round"
             stroke-width="2"
             d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-          ></path>
+          />
         </svg>
         我的收藏
       </h3>
 
-      <!-- 错误状态显示 -->
-      <div v-if="error" class="flex flex-col items-center justify-center py-4">
+      <!-- 错误状态显示自定义样式 -->
+      <div v-if="!data" class="flex flex-col items-center justify-center py-4">
         <div
           class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3"
         >
@@ -101,7 +100,7 @@ watch(isLoading, (val) => {
           </svg>
         </div>
         <div class="text-red-500 text-sm font-medium text-center mb-3">
-          {{ error.message }}
+          未能获取收藏信息
         </div>
         <button
           @click="refresh"
@@ -119,8 +118,8 @@ watch(isLoading, (val) => {
           <span class="text-sm font-medium text-gray-500">条目名称</span>
           <span
             class="text-sm text-gray-800 max-w-[120px] truncate"
-            :title="data?.subject?.name"
-            >{{ data?.subject?.name }}</span
+            :title="data.subject.name"
+            >{{ data.subject.name }}</span
           >
         </div>
         <div
@@ -129,7 +128,7 @@ watch(isLoading, (val) => {
           <span class="text-sm font-medium text-gray-500">我的评分</span>
           <div class="flex items-center">
             <svg
-              v-if="data?.rate"
+              v-if="data.rate"
               class="w-4 h-4 text-yellow-400 mr-1"
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -139,7 +138,7 @@ watch(isLoading, (val) => {
               />
             </svg>
             <span class="text-sm text-gray-800">{{
-              data?.rate || "未评分"
+              data.rate || "未评分"
             }}</span>
           </div>
         </div>
@@ -148,7 +147,7 @@ watch(isLoading, (val) => {
         >
           <span class="text-sm font-medium text-gray-500">收藏状态</span>
           <span class="text-sm text-gray-800">{{
-            collectionType(data?.type)
+            collectionType(data.type)
           }}</span>
         </div>
         <div
@@ -156,7 +155,7 @@ watch(isLoading, (val) => {
         >
           <span class="text-sm font-medium text-gray-500">更新时间</span>
           <span class="text-sm text-gray-800">{{
-            timeFormat(data?.updated_at)
+            timeFormat(data.updated_at)
           }}</span>
         </div>
       </div>
