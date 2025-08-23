@@ -8,6 +8,7 @@ import Subject from "@/page/home/subject/index.vue";
 import User from "@/page/home/user/index.vue";
 // @ts-ignore
 import CallbackSuccess from "@/page/home/callback-success/index.vue";
+import Test from "@/page/home/test/index.vue";
 const routes = [
   {
     path: "/",
@@ -43,6 +44,11 @@ const routes = [
         path: "callback-success",
         name: "CallbackSuccess",
         component: CallbackSuccess,
+      },
+      {
+        path: "test",
+        name: "Test",
+        component: Test,
       },
     ],
   },

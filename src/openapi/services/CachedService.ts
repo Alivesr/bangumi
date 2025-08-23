@@ -3,42 +3,37 @@
  * 为 OpenAPI 生成的 API 添加 localStorage 缓存支持
  */
 
-import { Service } from './Service';
-import type { CancelablePromise } from '../core/CancelablePromise';
-import { cachedRequest } from '../core/cachedRequest';
-import { OpenAPI } from '../core/OpenAPI';
-import type { SubjectType } from '../models/SubjectType';
-import type { SubjectCategory } from '../models/SubjectCategory';
-import type { SubjectID } from '../models/SubjectID';
-import type { EpType } from '../models/EpType';
-import type { SubjectCollectionType } from '../models/SubjectCollectionType';
-import type { UserSubjectCollectionModifyPayload } from '../models/UserSubjectCollectionModifyPayload';
-import type { EpisodeCollectionType } from '../models/EpisodeCollectionType';
-import type { IndexBasicInfo } from '../models/IndexBasicInfo';
-import type { IndexSubjectAddInfo } from '../models/IndexSubjectAddInfo';
-import type { IndexSubjectEditInfo } from '../models/IndexSubjectEditInfo';
+import { Service } from "./Service";
+import type { CancelablePromise } from "../core/CancelablePromise";
+import { cachedRequest } from "../core/cachedRequest";
+import { OpenAPI } from "../core/OpenAPI";
+import type { SubjectType } from "../models/SubjectType";
+import type { SubjectCategory } from "../models/SubjectCategory";
+import type { SubjectID } from "../models/SubjectID";
+import type { EpType } from "../models/EpType";
+import type { SubjectCollectionType } from "../models/SubjectCollectionType";
 
 // 导入模型类型
-import type { Subject } from '../models/Subject';
-import type { Paged_Subject } from '../models/Paged_Subject';
-import type { RelatedPerson } from '../models/RelatedPerson';
-import type { RelatedCharacter } from '../models/RelatedCharacter';
-import type { v0_subject_relation } from '../models/v0_subject_relation';
-import type { Character } from '../models/Character';
-import type { v0_RelatedSubject } from '../models/v0_RelatedSubject';
-import type { CharacterPerson } from '../models/CharacterPerson';
-import type { PersonDetail } from '../models/PersonDetail';
-import type { PersonCharacter } from '../models/PersonCharacter';
-import type { Paged_Episode } from '../models/Paged_Episode';
-import type { EpisodeDetail } from '../models/EpisodeDetail';
-import type { Paged_UserCollection } from '../models/Paged_UserCollection';
-import type { UserSubjectCollection } from '../models/UserSubjectCollection';
-import type { Page } from '../models/Page';
-import type { UserEpisodeCollection } from '../models/UserEpisodeCollection';
-import type { Paged_UserCharacterCollection } from '../models/Paged_UserCharacterCollection';
-import type { UserCharacterCollection } from '../models/UserCharacterCollection';
-import type { Paged_UserPersonCollection } from '../models/Paged_UserPersonCollection';
-import type { UserPersonCollection } from '../models/UserPersonCollection';
+import type { Subject } from "../models/Subject";
+import type { Paged_Subject } from "../models/Paged_Subject";
+import type { RelatedPerson } from "../models/RelatedPerson";
+import type { RelatedCharacter } from "../models/RelatedCharacter";
+import type { v0_subject_relation } from "../models/v0_subject_relation";
+import type { Character } from "../models/Character";
+import type { v0_RelatedSubject } from "../models/v0_RelatedSubject";
+import type { CharacterPerson } from "../models/CharacterPerson";
+import type { PersonDetail } from "../models/PersonDetail";
+import type { PersonCharacter } from "../models/PersonCharacter";
+import type { Paged_Episode } from "../models/Paged_Episode";
+import type { EpisodeDetail } from "../models/EpisodeDetail";
+import type { Paged_UserCollection } from "../models/Paged_UserCollection";
+import type { UserSubjectCollection } from "../models/UserSubjectCollection";
+import type { Page } from "../models/Page";
+import type { UserEpisodeCollection } from "../models/UserEpisodeCollection";
+import type { Paged_UserCharacterCollection } from "../models/Paged_UserCharacterCollection";
+import type { UserCharacterCollection } from "../models/UserCharacterCollection";
+import type { Paged_UserPersonCollection } from "../models/Paged_UserPersonCollection";
+import type { UserPersonCollection } from "../models/UserPersonCollection";
 
 // 默认缓存时间配置
 const CACHE_TTL = {
@@ -49,7 +44,7 @@ const CACHE_TTL = {
   // 长缓存：30分钟
   LONG: 30 * 60 * 1000,
   // 超长缓存：24小时
-  VERY_LONG: 24 * 60 * 60 * 1000
+  VERY_LONG: 24 * 60 * 60 * 1000,
 };
 
 export class CachedService {
@@ -79,26 +74,33 @@ export class CachedService {
     offset?: number,
   ): CancelablePromise<Paged_Subject> {
     // 根据 offset 决定缓存时间
-    const ttl = offset === 0 || offset === undefined ? CACHE_TTL.VERY_LONG : CACHE_TTL.LONG;
-    
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/subjects',
-      query: {
-        'type': type,
-        'cat': cat,
-        'series': series,
-        'platform': platform,
-        'sort': sort,
-        'year': year,
-        'month': month,
-        'limit': limit,
-        'offset': offset,
+    const ttl =
+      offset === 0 || offset === undefined
+        ? CACHE_TTL.VERY_LONG
+        : CACHE_TTL.LONG;
+
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/subjects",
+        query: {
+          type: type,
+          cat: cat,
+          series: series,
+          platform: platform,
+          sort: sort,
+          year: year,
+          month: month,
+          limit: limit,
+          offset: offset,
+        },
       },
-    }, {
-      cache: true,
-      ttl: ttl
-    });
+      {
+        cache: true,
+        ttl: ttl,
+      },
+    );
   }
 
   /**
@@ -110,16 +112,20 @@ export class CachedService {
   public static getSubjectById(
     subjectId: SubjectID,
   ): CancelablePromise<Subject> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/subjects/{subject_id}',
-      path: {
-        'subject_id': subjectId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/subjects/{subject_id}",
+        path: {
+          subject_id: subjectId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -130,16 +136,20 @@ export class CachedService {
   public static getRelatedPersonsBySubjectId(
     subjectId: SubjectID,
   ): CancelablePromise<Array<RelatedPerson>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/subjects/{subject_id}/persons',
-      path: {
-        'subject_id': subjectId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/subjects/{subject_id}/persons",
+        path: {
+          subject_id: subjectId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -150,16 +160,20 @@ export class CachedService {
   public static getRelatedCharactersBySubjectId(
     subjectId: SubjectID,
   ): CancelablePromise<Array<RelatedCharacter>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/subjects/{subject_id}/characters',
-      path: {
-        'subject_id': subjectId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/subjects/{subject_id}/characters",
+        path: {
+          subject_id: subjectId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -170,16 +184,20 @@ export class CachedService {
   public static getRelatedSubjectsBySubjectId(
     subjectId: SubjectID,
   ): CancelablePromise<Array<v0_subject_relation>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/subjects/{subject_id}/subjects',
-      path: {
-        'subject_id': subjectId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/subjects/{subject_id}/subjects",
+        path: {
+          subject_id: subjectId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -191,16 +209,20 @@ export class CachedService {
   public static getCharacterById(
     characterId: number,
   ): CancelablePromise<Character> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/characters/{character_id}',
-      path: {
-        'character_id': characterId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/characters/{character_id}",
+        path: {
+          character_id: characterId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.SHORT
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.SHORT,
+      },
+    );
   }
 
   /**
@@ -211,16 +233,20 @@ export class CachedService {
   public static getRelatedSubjectsByCharacterId(
     characterId: number,
   ): CancelablePromise<Array<v0_RelatedSubject>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/characters/{character_id}/subjects',
-      path: {
-        'character_id': characterId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/characters/{character_id}/subjects",
+        path: {
+          character_id: characterId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -231,16 +257,20 @@ export class CachedService {
   public static getRelatedPersonsByCharacterId(
     characterId: number,
   ): CancelablePromise<Array<CharacterPerson>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/characters/{character_id}/persons',
-      path: {
-        'character_id': characterId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/characters/{character_id}/persons",
+        path: {
+          character_id: characterId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -252,16 +282,20 @@ export class CachedService {
   public static getPersonById(
     personId: number,
   ): CancelablePromise<PersonDetail> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/persons/{person_id}',
-      path: {
-        'person_id': personId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/persons/{person_id}",
+        path: {
+          person_id: personId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.SHORT
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.SHORT,
+      },
+    );
   }
 
   /**
@@ -272,16 +306,20 @@ export class CachedService {
   public static getRelatedSubjectsByPersonId(
     personId: number,
   ): CancelablePromise<Array<v0_RelatedSubject>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/persons/{person_id}/subjects',
-      path: {
-        'person_id': personId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/persons/{person_id}/subjects",
+        path: {
+          person_id: personId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -292,16 +330,20 @@ export class CachedService {
   public static getRelatedCharactersByPersonId(
     personId: number,
   ): CancelablePromise<Array<PersonCharacter>> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/persons/{person_id}/characters',
-      path: {
-        'person_id': personId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/persons/{person_id}/characters",
+        path: {
+          person_id: personId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -318,19 +360,23 @@ export class CachedService {
     limit: number = 100,
     offset?: number,
   ): CancelablePromise<Paged_Episode> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/episodes',
-      query: {
-        'subject_id': subjectId,
-        'type': type,
-        'limit': limit,
-        'offset': offset,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/episodes",
+        query: {
+          subject_id: subjectId,
+          type: type,
+          limit: limit,
+          offset: offset,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -341,16 +387,20 @@ export class CachedService {
   public static getEpisodeById(
     episodeId: number,
   ): CancelablePromise<EpisodeDetail> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/episodes/{episode_id}',
-      path: {
-        'episode_id': episodeId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/episodes/{episode_id}",
+        path: {
+          episode_id: episodeId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -369,22 +419,26 @@ export class CachedService {
     limit: number = 30,
     offset?: number,
   ): CancelablePromise<Paged_UserCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections',
-      path: {
-        'username': username,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections",
+        path: {
+          username: username,
+        },
+        query: {
+          subject_type: subjectType,
+          type: type,
+          limit: limit,
+          offset: offset,
+        },
       },
-      query: {
-        'subject_type': subjectType,
-        'type': type,
-        'limit': limit,
-        'offset': offset,
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+    );
   }
 
   /**
@@ -397,17 +451,21 @@ export class CachedService {
     username: string,
     subjectId: SubjectID,
   ): CancelablePromise<UserSubjectCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections/{subject_id}',
-      path: {
-        'username': username,
-        'subject_id': subjectId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections/{subject_id}",
+        path: {
+          username: username,
+          subject_id: subjectId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -423,24 +481,30 @@ export class CachedService {
     offset?: number,
     limit: number = 100,
     episodeType?: EpType,
-  ): CancelablePromise<(Page & {
-        data?: Array<UserEpisodeCollection>;
-    })> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/-/collections/{subject_id}/episodes',
-      path: {
-        'subject_id': subjectId,
+  ): CancelablePromise<
+    Page & {
+      data?: Array<UserEpisodeCollection>;
+    }
+  > {
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/-/collections/{subject_id}/episodes",
+        path: {
+          subject_id: subjectId,
+        },
+        query: {
+          offset: offset,
+          limit: limit,
+          episode_type: episodeType,
+        },
       },
-      query: {
-        'offset': offset,
-        'limit': limit,
-        'episode_type': episodeType,
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+    );
   }
 
   /**
@@ -451,16 +515,20 @@ export class CachedService {
   public static getUserEpisodeCollection(
     episodeId: number,
   ): CancelablePromise<UserEpisodeCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/-/collections/-/episodes/{episode_id}',
-      path: {
-        'episode_id': episodeId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/-/collections/-/episodes/{episode_id}",
+        path: {
+          episode_id: episodeId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -471,16 +539,20 @@ export class CachedService {
   public static getUserCharacterCollections(
     username: string,
   ): CancelablePromise<Paged_UserCharacterCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections/-/characters',
-      path: {
-        'username': username,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections/-/characters",
+        path: {
+          username: username,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -493,17 +565,21 @@ export class CachedService {
     username: string,
     characterId: number,
   ): CancelablePromise<UserCharacterCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections/-/characters/{character_id}',
-      path: {
-        'username': username,
-        'character_id': characterId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections/-/characters/{character_id}",
+        path: {
+          username: username,
+          character_id: characterId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -514,16 +590,20 @@ export class CachedService {
   public static getUserPersonCollections(
     username: string,
   ): CancelablePromise<Paged_UserPersonCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections/-/persons',
-      path: {
-        'username': username,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections/-/persons",
+        path: {
+          username: username,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   /**
@@ -536,17 +616,21 @@ export class CachedService {
     username: string,
     personId: number,
   ): CancelablePromise<UserPersonCollection> {
-    return cachedRequest(OpenAPI, {
-      method: 'GET',
-      url: '/v0/users/{username}/collections/-/persons/{person_id}',
-      path: {
-        'username': username,
-        'person_id': personId,
+    return cachedRequest(
+      OpenAPI,
+      {
+        method: "GET",
+        url: "/v0/users/{username}/collections/-/persons/{person_id}",
+        path: {
+          username: username,
+          person_id: personId,
+        },
       },
-    }, {
-      cache: true,
-      ttl: CACHE_TTL.MEDIUM
-    });
+      {
+        cache: true,
+        ttl: CACHE_TTL.MEDIUM,
+      },
+    );
   }
 
   // 以下方法不使用缓存，因为它们是写操作或需要实时数据
@@ -569,12 +653,14 @@ export class CachedService {
   /**
    * Collect character for current user
    */
-  public static collectCharacterByCharacterIdAndUserId = Service.collectCharacterByCharacterIdAndUserId;
+  public static collectCharacterByCharacterIdAndUserId =
+    Service.collectCharacterByCharacterIdAndUserId;
 
   /**
    * Uncollect character for current user
    */
-  public static uncollectCharacterByCharacterIdAndUserId = Service.uncollectCharacterByCharacterIdAndUserId;
+  public static uncollectCharacterByCharacterIdAndUserId =
+    Service.uncollectCharacterByCharacterIdAndUserId;
 
   /**
    * 角色搜索
@@ -589,12 +675,14 @@ export class CachedService {
   /**
    * Collect person for current user
    */
-  public static collectPersonByPersonIdAndUserId = Service.collectPersonByPersonIdAndUserId;
+  public static collectPersonByPersonIdAndUserId =
+    Service.collectPersonByPersonIdAndUserId;
 
   /**
    * Uncollect person for current user
    */
-  public static uncollectPersonByPersonIdAndUserId = Service.uncollectPersonByPersonIdAndUserId;
+  public static uncollectPersonByPersonIdAndUserId =
+    Service.uncollectPersonByPersonIdAndUserId;
 
   /**
    * 人物搜索
@@ -629,7 +717,8 @@ export class CachedService {
   /**
    * 章节收藏信息
    */
-  public static patchUserSubjectEpisodeCollection = Service.patchUserSubjectEpisodeCollection;
+  public static patchUserSubjectEpisodeCollection =
+    Service.patchUserSubjectEpisodeCollection;
 
   /**
    * 更新章节收藏信息
@@ -644,7 +733,8 @@ export class CachedService {
   /**
    * Get Person Revision
    */
-  public static getPersonRevisionByRevisionId = Service.getPersonRevisionByRevisionId;
+  public static getPersonRevisionByRevisionId =
+    Service.getPersonRevisionByRevisionId;
 
   /**
    * Get Character Revisions
@@ -654,7 +744,8 @@ export class CachedService {
   /**
    * Get Character Revision
    */
-  public static getCharacterRevisionByRevisionId = Service.getCharacterRevisionByRevisionId;
+  public static getCharacterRevisionByRevisionId =
+    Service.getCharacterRevisionByRevisionId;
 
   /**
    * Get Subject Revisions
@@ -664,7 +755,8 @@ export class CachedService {
   /**
    * Get Subject Revision
    */
-  public static getSubjectRevisionByRevisionId = Service.getSubjectRevisionByRevisionId;
+  public static getSubjectRevisionByRevisionId =
+    Service.getSubjectRevisionByRevisionId;
 
   /**
    * Get Episode Revisions
@@ -674,7 +766,8 @@ export class CachedService {
   /**
    * Get Episode Revision
    */
-  public static getEpisodeRevisionByRevisionId = Service.getEpisodeRevisionByRevisionId;
+  public static getEpisodeRevisionByRevisionId =
+    Service.getEpisodeRevisionByRevisionId;
 
   /**
    * Create a new index
@@ -704,20 +797,24 @@ export class CachedService {
   /**
    * Edit subject information in a index
    */
-  public static editIndexSubjectsByIndexIdAndSubjectId = Service.editIndexSubjectsByIndexIdAndSubjectId;
+  public static editIndexSubjectsByIndexIdAndSubjectId =
+    Service.editIndexSubjectsByIndexIdAndSubjectId;
 
   /**
    * Delete a subject from a Index
    */
-  public static delelteSubjectFromIndexByIndexIdAndSubjectId = Service.delelteSubjectFromIndexByIndexIdAndSubjectId;
+  public static delelteSubjectFromIndexByIndexIdAndSubjectId =
+    Service.delelteSubjectFromIndexByIndexIdAndSubjectId;
 
   /**
    * Collect index for current user
    */
-  public static collectIndexByIndexIdAndUserId = Service.collectIndexByIndexIdAndUserId;
+  public static collectIndexByIndexIdAndUserId =
+    Service.collectIndexByIndexIdAndUserId;
 
   /**
    * Uncollect index for current user
    */
-  public static uncollectIndexByIndexIdAndUserId = Service.uncollectIndexByIndexIdAndUserId;
+  public static uncollectIndexByIndexIdAndUserId =
+    Service.uncollectIndexByIndexIdAndUserId;
 }

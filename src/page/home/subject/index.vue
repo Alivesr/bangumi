@@ -258,9 +258,8 @@ const reloadSubject = async () => {
           </div>
         </div>
         <!-- 观看记录 -->
-        <keep-alive>
-          <ViewBox />
-        </keep-alive>
+
+        <ViewBox />
       </div>
     </div>
   </div>

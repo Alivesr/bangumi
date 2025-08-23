@@ -1,4 +1,6 @@
-const formatTime = (isoString: string) => {
+const timeFormat = (isoString?: string) => {
+  if (!isoString) return "未知时间";
+  
   const date = new Date(isoString);
 
   const y = date.getFullYear();
@@ -10,4 +12,4 @@ const formatTime = (isoString: string) => {
   return `${y}-${m}-${d} ${hh}:${mm}`;
 };
 
-export default formatTime;
+export default timeFormat;

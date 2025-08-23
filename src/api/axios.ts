@@ -1,11 +1,5 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 
-interface CacheConfig {
-  cache?: boolean; // 是否启用缓存
-  ttl?: number; // 缓存有效期（毫秒），默认5分钟
-}
-
-// 扩展 AxiosRequestConfig 以支持缓存配置
 interface AxiosRequestConfigWithCache extends AxiosRequestConfig {
   cache?: boolean;
   ttl?: number;

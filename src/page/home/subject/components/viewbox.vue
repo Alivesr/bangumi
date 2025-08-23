@@ -1,32 +1,31 @@
 <script setup lang="ts">
-import { Service } from "@/openapi/services/Service";
+// import { Service } from "@/openapi/services/Service";
+import { CachedService } from "@/openapi";
 import { useAuthStore } from "@/stores";
 import { useRoute } from "vue-router";
-import { ref, onMounted, watch } from "vue";
-import type { UserSubjectCollection } from "@/openapi/models/UserSubjectCollection";
+import { onMounted, watch } from "vue";
+import collectionType from "@/utils/collectionType";
+import timeFormat from "@/utils/timeFormat";
+import { useLocalStorageFetch } from "@/hook/useLocalStorageFetch";
 
 const authStore = useAuthStore();
 const route = useRoute();
-const userCollection = ref<UserSubjectCollection | null>(null);
-const loading = ref(true);
-const error = ref<string | null>(null);
 
-const getUserCollection = async () => {
-  const id = Number(route.params.id);
-  if (!id) return;
-  
-  try {
-    loading.value = true;
-    error.value = null;
-    const res = await Service.getUserCollection(authStore.user?.id ?? "", id);
-    userCollection.value = res;
-  } catch (err) {
-    error.value = "加载收藏信息失败";
-    console.error(err);
-  } finally {
-    loading.value = false;
-  }
-};
+const {
+  data: userCollection,
+  loading,
+  silentLoading,
+  error,
+  load: getUserCollection,
+  hasCache,
+} = useLocalStorageFetch(
+  `user_collection_${authStore.user?.id}_${route.params.id}`,
+  () =>
+    CachedService.getUserCollection(
+      authStore.user?.id ?? "",
+      Number(route.params.id),
+    ),
+);
 
 onMounted(() => {
   getUserCollection();
@@ -37,34 +36,139 @@ watch(
   () => route.params.id,
   () => {
     getUserCollection();
-  }
+  },
 );
 </script>
 
 <template>
-  <!-- 加载状态 -->
-  <div v-if="loading" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64">
-    <div class="h-6 bg-gray-200 rounded w-24 mb-4 animate-pulse"></div>
-    <div class="space-y-2">
-      <div class="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-    </div>
-  </div>
+  <transition name="fade" mode="out-in">
+    <!-- 加载状态（首次加载且无缓存时显示骨架屏） -->
+    <template v-if="loading && !hasCache">
+      <div
+        class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300"
+        key="loading"
+      >
+        <div class="h-6 bg-gray-200 rounded w-24 mb-4 animate-pulse"></div>
+        <div class="space-y-3">
+          <div class="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+          <div class="h-4 bg-gray-200 rounded w-5/6 animate-pulse"></div>
+          <div class="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3 animate-pulse"></div>
+        </div>
+      </div>
+    </template>
 
-  <!-- 错误状态 -->
-  <div v-else-if="error" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64">
-    <div class="text-red-500 text-sm">{{ error }}</div>
-  </div>
+    <!-- 错误状态 -->
+    <template v-else-if="error && !hasCache">
+      <div
+        class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300"
+        key="error"
+      >
+        <div class="flex flex-col items-center justify-center py-4">
+          <div
+            class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mb-3"
+          >
+            <svg
+              class="w-6 h-6 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </div>
+          <div class="text-red-500 text-sm font-medium text-center">
+            {{ error }}
+          </div>
+        </div>
+      </div>
+    </template>
 
-  <!-- 内容展示 -->
-  <div v-else-if="userCollection" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64">
-    <h3 class="text-lg font-semibold text-gray-800 mb-3">我的收藏</h3>
-    <div class="text-gray-600">
-      <div>{{ userCollection.subject?.name }}</div>
-    </div>
-  </div>
-
-  <!-- 无数据状态 -->
-  <div v-else class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64">
-    <div class="text-gray-400 text-sm">暂无收藏信息</div>
-  </div>
+    <!-- 内容展示 -->
+    <template v-else-if="userCollection || hasCache">
+      <div
+        class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex-shrink-0 w-64 transition-all duration-300 hover:shadow-md"
+        key="content"
+      >
+        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+          <svg
+            class="w-5 h-5 text-blue-500 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+            ></path>
+          </svg>
+          我的收藏
+        </h3>
+        <div class="space-y-3">
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+          >
+            <span class="text-sm font-medium text-gray-500">条目名称</span>
+            <span
+              class="text-sm text-gray-800 max-w-[120px] truncate"
+              :title="userCollection?.subject?.name"
+              >{{ userCollection?.subject?.name }}</span
+            >
+          </div>
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+          >
+            <span class="text-sm font-medium text-gray-500">我的评分</span>
+            <div class="flex items-center">
+              <svg
+                v-if="userCollection?.rate"
+                class="w-4 h-4 text-yellow-400 mr-1"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                />
+              </svg>
+              <span class="text-sm text-gray-800">{{
+                userCollection?.rate || "未评分"
+              }}</span>
+            </div>
+          </div>
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+          >
+            <span class="text-sm font-medium text-gray-500">收藏状态</span>
+            <span class="text-sm text-gray-800">{{
+              collectionType(userCollection?.type)
+            }}</span>
+          </div>
+          <div
+            class="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+          >
+            <span class="text-sm font-medium text-gray-500">更新时间</span>
+            <span class="text-sm text-gray-800">{{
+              timeFormat(userCollection?.updated_at)
+            }}</span>
+          </div>
+        </div>
+        
+        <!-- 静默刷新指示器 -->
+        <div v-if="silentLoading" class="mt-3 flex items-center text-blue-500 text-sm">
+          <svg class="w-4 h-4 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          数据更新中...
+        </div>
+      </div>
+    </template>
+  </transition>
 </template>

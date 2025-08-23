@@ -1,4 +1,6 @@
-const collectionType = (type: number) => {
+const collectionType = (type?: number) => {
+  if (type === undefined) return "未知";
+  
   switch (type) {
     case 1:
       return "想看";
@@ -10,6 +12,8 @@ const collectionType = (type: number) => {
       return "搁置";
     case 5:
       return "抛弃";
+    default:
+      return "未知";
   }
 };
 
