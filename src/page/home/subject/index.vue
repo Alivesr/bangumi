@@ -5,7 +5,7 @@ import { getSubjectDetail } from "@/api/subject";
 import { Service } from "@/openapi";
 import type { Response, Kv } from "@/types/subject/getSubjectTypes";
 import ViewBox from "./components/viewbox.vue";
-import type { RelatedCharacter } from "@/openapi";
+import type { RelatedCharacter, Character } from "@/openapi";
 const route = useRoute();
 const id = Number(route.params.id);
 
@@ -13,7 +13,7 @@ const subject = ref<Response>();
 const loading = ref(true);
 const error = ref<string | null>(null);
 const characters = ref<RelatedCharacter[]>([]);
-
+const charactersDetailMap = ref<Record<number, Character>>({});
 const navigateList = [
   "概览",
   "章节",
@@ -78,15 +78,30 @@ const getCharacters = async () => {
     loading.value = true;
     error.value = null;
     const res = await Service.getRelatedCharactersBySubjectId(id);
-    // 这里应该将角色数据合并到 subject 对象中，或者单独处理
-    // 暂时保留原来的逻辑，但需要根据实际需求调整
+
+    // 获取每个角色的详细信息
+    await Promise.all(res.map((character) => getCharacterDetail(character.id)));
+
     characters.value = res;
     console.log("获取到的角色数据:", characters.value);
+    console.log("获取到的角色详情映射:", charactersDetailMap.value);
   } catch (err) {
     console.error("获取角色信息失败:", err);
     error.value = "获取角色信息失败，请稍后重试";
   } finally {
     loading.value = false;
+  }
+};
+
+const getCharacterDetail = async (id: number) => {
+  try {
+    const res = await Service.getCharacterById(id);
+    charactersDetailMap.value[id] = res;
+    return res;
+  } catch (err) {
+    console.error(`获取角色 ${id} 详细信息失败:`, err);
+    charactersDetailMap.value[id] = {} as Character;
+    throw err; // 重新抛出错误，让调用者可以处理
   }
 };
 </script>
@@ -308,18 +323,28 @@ const getCharacters = async () => {
               <div
                 v-for="item in characters.slice(0, 12)"
                 :key="item.id"
-                class="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-all duration-200 hover:shadow-sm flex"
+                class="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-all duration-200 hover:shadow-sm flex justify-center items-center"
               >
                 <img
                   :src="item.images?.small"
                   alt=""
-                  class="w-16 h-16 object-cover object-top"
+                  class="w-16 h-16 ml-2 object-cover object-top rounded-sm"
                   v-if="item.images && item.images.small"
                 />
                 <div class="flex flex-col justify-center p-3 flex-1">
-                  <div class="font-medium text-gray-800 text-sm truncate">{{ item.name }}</div>
-                  <div class="text-xs text-gray-600 mt-1">
-                    {{ item.relation }}
+                  <div class="font-medium text-gray-800 text-sm truncate">
+                    {{ item.name }}
+                  </div>
+                  <!-- 定位 -->
+                  <div class="flex">
+                    <div
+                      class="text-xs text-gray-600 mt-1 bg-gray-100 rounded-[2px] border-gray-300 border-1"
+                    >
+                      {{ item.relation }}
+                    </div>
+                    <div class="text-xs text-gray-600 mt-1 ml-2">
+                      {{ charactersDetailMap[item.id]?.infobox?.[0]?.value }}
+                    </div>
                   </div>
                   <div class="text-xs text-blue-600 mt-1">
                     {{ item.actors?.[0]?.name }}

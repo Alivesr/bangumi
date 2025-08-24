@@ -5,6 +5,8 @@ import Toast from "@/components/Toast.vue";
 import { useAuthStore } from "@/stores";
 import { Service } from "@/openapi/services/Service";
 import type { User } from "@/openapi/models/User";
+import subjectType from "@/utils/subjectTypes";
+
 const keyword = ref("");
 const router = useRouter();
 const searchType = ref(0);
@@ -39,6 +41,10 @@ const handleSearch = async () => {
 };
 
 const selectType = (type: number) => {
+  if (type === 0) {
+    (document.activeElement as HTMLElement).blur();
+    return;
+  }
   searchType.value = type;
   if (document.activeElement) {
     (document.activeElement as HTMLElement).blur();
@@ -246,7 +252,7 @@ onMounted(() => {
           role="button"
           class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300 flex items-center font-medium"
         >
-          全部
+          {{ subjectType(searchType) }}
           <svg
             class="w-4 h-4 ml-2"
             fill="none"
@@ -265,6 +271,16 @@ onMounted(() => {
           tabindex="0"
           class="dropdown-content menu bg-white rounded-xl p-2 shadow-xl z-10 mt-2 w-44 border border-gray-200"
         >
+          <li>
+            <a
+              @click="
+                selectType(0);
+                closeMobileMenu();
+              "
+              class="block px-4 py-3 text-gray-700 hover:bg-gray-100 hover:text-gray-700 rounded-lg transition-colors duration-200"
+              >全部</a
+            >
+          </li>
           <li>
             <a
               @click="
