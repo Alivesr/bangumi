@@ -56,13 +56,14 @@ const fetchUsers = async (): Promise<User[]> => {
   return response.json();
 };
 
-const { data, isUpdating, isLoading, error, refresh, clearCache } =
-  useSilentUpdate<User[]>({
+const { data, isUpdating, isLoading, error, refresh } = useSilentUpdate<User[]>(
+  {
     fetchFn: fetchUsers,
     cacheKey: "users_data",
     cacheTime: 5 * 60 * 1000, // 5分钟缓存
     immediate: true,
-  });
+  },
+);
 </script>
 
 <style scoped>

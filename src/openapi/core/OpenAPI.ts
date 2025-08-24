@@ -30,3 +30,9 @@ export const OpenAPI: OpenAPIConfig = {
   HEADERS: undefined,
   ENCODE_PATH: undefined,
 };
+
+// 动态获取token的函数
+OpenAPI.TOKEN = () => {
+  const token = localStorage.getItem("token");
+  return token || "";
+};

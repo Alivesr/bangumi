@@ -2,15 +2,17 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getSubjectDetail } from "@/api/subject";
+import { Service } from "@/openapi";
 import type { Response, Kv } from "@/types/subject/getSubjectTypes";
 import ViewBox from "./components/viewbox.vue";
-
+import type { RelatedCharacter } from "@/openapi";
 const route = useRoute();
 const id = Number(route.params.id);
 
 const subject = ref<Response>();
 const loading = ref(true);
 const error = ref<string | null>(null);
+const characters = ref<RelatedCharacter[]>([]);
 
 const navigateList = [
   "概览",
@@ -25,18 +27,8 @@ const navigateList = [
 ];
 
 onMounted(async () => {
-  try {
-    loading.value = true;
-    error.value = null;
-    const res: Response = await getSubjectDetail({ subject_id: id });
-    subject.value = res;
-    console.log(subject.value);
-  } catch (err) {
-    console.error("获取条目详情失败:", err);
-    error.value = "获取条目详情失败，请稍后重试";
-  } finally {
-    loading.value = false;
-  }
+  getSubject();
+  getCharacters();
 });
 
 const formatInfoboxValue = (value: Kv[] | string): string => {
@@ -62,6 +54,37 @@ const reloadSubject = async () => {
   } catch (err) {
     console.error("获取条目详情失败:", err);
     error.value = "获取条目详情失败，请稍后重试";
+  } finally {
+    loading.value = false;
+  }
+};
+const getSubject = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    const res: Response = await getSubjectDetail({ subject_id: id });
+    subject.value = res;
+    console.log(subject.value);
+  } catch (err) {
+    console.error("获取条目详情失败:", err);
+    error.value = "获取条目详情失败，请稍后重试";
+  } finally {
+    loading.value = false;
+  }
+};
+
+const getCharacters = async () => {
+  try {
+    loading.value = true;
+    error.value = null;
+    const res = await Service.getRelatedCharactersBySubjectId(id);
+    // 这里应该将角色数据合并到 subject 对象中，或者单独处理
+    // 暂时保留原来的逻辑，但需要根据实际需求调整
+    characters.value = res;
+    console.log("获取到的角色数据:", characters.value);
+  } catch (err) {
+    console.error("获取角色信息失败:", err);
+    error.value = "获取角色信息失败，请稍后重试";
   } finally {
     loading.value = false;
   }
@@ -236,19 +259,31 @@ const reloadSubject = async () => {
             </div>
           </div>
         </div>
-        <!-- 简介 -->
+        <!-- 中间和右侧合并区域 -->
         <div class="flex-1 min-w-0 space-y-4">
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 class="text-lg font-semibold text-gray-800 mb-3">简介</h3>
-            <div class="text-gray-600 leading-relaxed whitespace-pre-line">
-              {{ subject?.summary || "暂无简介" }}
+          <div class="flex gap-4">
+            <!-- 简介 -->
+            <div
+              class="flex-1 bg-white min-w-150 rounded-xl p-6 shadow-sm border border-gray-100"
+            >
+              <h3 class="text-lg font-semibold text-gray-800 mb-3">简介</h3>
+              <div class="text-gray-600 leading-relaxed whitespace-pre-line">
+                {{ subject?.summary || "暂无简介" }}
+              </div>
+            </div>
+            <!-- 观看记录 -->
+            <div class="w-64 flex-shrink-0">
+              <ViewBox />
             </div>
           </div>
-          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+          <!-- 标签 -->
+          <div
+            class="bg-white max-w-150 rounded-xl p-6 shadow-sm border border-gray-100"
+          >
             <h3 class="text-lg font-semibold text-gray-800 mb-3">标签</h3>
             <div class="flex flex-wrap gap-2">
               <div
-                v-for="tag in subject?.tags"
+                v-for="tag in subject?.tags || []"
                 :key="tag.name"
                 class="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium hover:bg-blue-100 transition-colors cursor-pointer"
               >
@@ -256,10 +291,45 @@ const reloadSubject = async () => {
               </div>
             </div>
           </div>
-        </div>
-        <!-- 观看记录 -->
+          <!-- 关联角色 -->
+          <div
+            class="bg-white rounded-xl p-6 w-230 shadow-sm border border-gray-100"
+          >
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="text-lg font-semibold text-gray-800 mb-3">关联角色</h3>
+              <button
+                class="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              >
+                全部
+              </button>
+            </div>
 
-        <ViewBox />
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div
+                v-for="item in characters.slice(0, 12)"
+                :key="item.id"
+                class="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-all duration-200 hover:shadow-sm flex"
+              >
+                <img
+                  :src="item.images?.small"
+                  alt=""
+                  class="w-16 h-16 object-cover object-top"
+                  v-if="item.images && item.images.small"
+                />
+                <div class="flex flex-col justify-center p-3 flex-1">
+                  <div class="font-medium text-gray-800 text-sm truncate">{{ item.name }}</div>
+                  <div class="text-xs text-gray-600 mt-1">
+                    {{ item.relation }}
+                  </div>
+                  <div class="text-xs text-blue-600 mt-1">
+                    {{ item.actors?.[0]?.name }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 flex justify-center"></div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
