@@ -147,36 +147,42 @@ onMounted(() => {
         <button
           :class="navBtnClass"
           class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          @click="router.push('/anime')"
         >
           动画
         </button>
         <button
           :class="navBtnClass"
           class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          @click="router.push('/book')"
         >
           书籍
         </button>
         <button
           :class="navBtnClass"
-          class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium" 
+          @click="router.push('/game')"
         >
           游戏
         </button>
         <button
           :class="navBtnClass"
           class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          @click="router.push('/music')"
         >
           音乐
         </button>
         <button
           :class="navBtnClass"
           class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          @click="router.push('/real')"
         >
           三次元
         </button>
         <button
           :class="navBtnClass"
           class="px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-all duration-300 font-medium"
+          @click="router.push('/user')"
         >
           人物
         </button>

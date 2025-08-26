@@ -9,6 +9,11 @@ import User from "@/page/home/user/index.vue";
 // @ts-ignore
 import CallbackSuccess from "@/page/home/callback-success/index.vue";
 import Test from "@/page/home/test/index.vue";
+import Anime from "@/page/home/anime/index.vue";
+import Book from "@/page/home/book/index.vue";
+import Game from "@/page/home/game/index.vue";
+import Real from "@/page/home/real/index.vue";
+import Music from "@/page/home/music/index.vue";  
 const routes = [
   {
     path: "/",
@@ -50,6 +55,32 @@ const routes = [
         name: "Test",
         component: Test,
       },
+      {
+        path: "anime",
+        name: "Anime",
+        component:  Anime,
+      },
+      {
+        path: "book",
+        name: "Book",
+        component: Book,
+      },
+      {
+        path: "game",
+        name: "Game",
+        component: Game,
+      },
+      {
+        path: "real",
+        name: "Real",
+        component: Real,
+      },
+      {
+        path: "music",
+        name: "Music",
+        component: Music,
+      },
+
     ],
   },
 ];
