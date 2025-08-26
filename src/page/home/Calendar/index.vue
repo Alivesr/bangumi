@@ -3,6 +3,9 @@ import { getCalendar } from "@/api/calendar";
 import { onMounted, ref, computed } from "vue";
 
 import type { CalendarDay } from "@/types/calendarType";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const calendarData = ref<CalendarDay[]>([]);
 const loading = ref(false);
@@ -22,7 +25,7 @@ const getCalendarData = async () => {
 };
 
 const handleClick = (item: { id: number }) => {
-  window.open(`https://bgm.tv/subject/${item.id}`, "_blank");
+  router.push(`/subject/${item.id}`);
 };
 
 const handleLayout = (mode: "grid" | "horizontal") => {

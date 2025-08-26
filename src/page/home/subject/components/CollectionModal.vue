@@ -205,6 +205,7 @@ const handleSubmit = async () => {
       rate: formData.value.rate,
     });
     emit("update");
+    console.log("修改收藏成功", formData.value);
     closeModal();
   } catch (err) {
     console.error("修改收藏失败:", err);

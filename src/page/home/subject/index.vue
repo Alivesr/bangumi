@@ -3,9 +3,17 @@ import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { getSubjectDetail } from "@/api/subject";
 import { Service } from "@/openapi";
+import { SubjectService } from "@/openapi_p";
 import type { Response, Kv } from "@/types/subject/getSubjectTypes";
 import ViewBox from "./components/viewbox.vue";
-import type { RelatedCharacter, Character } from "@/openapi";
+import type {
+  RelatedCharacter,
+  Character,
+  v0_subject_relation,
+} from "@/openapi";
+import type { SubjectReview, SubjectInterestComment } from "@/openapi_p";
+import { formatDate } from "@/utils/timeFormat";
+
 const route = useRoute();
 const id = Number(route.params.id);
 
@@ -14,6 +22,10 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 const characters = ref<RelatedCharacter[]>([]);
 const charactersDetailMap = ref<Record<number, Character>>({});
+const relatedSubjects = ref<v0_subject_relation[]>([]);
+const reviews = ref<SubjectReview[]>([]);
+const comments = ref<SubjectInterestComment[]>([]);
+
 const navigateList = [
   "概览",
   "章节",
@@ -29,6 +41,9 @@ const navigateList = [
 onMounted(async () => {
   getSubject();
   getCharacters();
+  getRelatedSubjectsBySubjectId();
+  getReviews();
+  getSubjectComments();
 });
 
 const formatInfoboxValue = (value: Kv[] | string): string => {
@@ -75,21 +90,12 @@ const getSubject = async () => {
 
 const getCharacters = async () => {
   try {
-    loading.value = true;
-    error.value = null;
     const res = await Service.getRelatedCharactersBySubjectId(id);
-
     // 获取每个角色的详细信息
     await Promise.all(res.map((character) => getCharacterDetail(character.id)));
-
     characters.value = res;
-    console.log("获取到的角色数据:", characters.value);
-    console.log("获取到的角色详情映射:", charactersDetailMap.value);
   } catch (err) {
     console.error("获取角色信息失败:", err);
-    error.value = "获取角色信息失败，请稍后重试";
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -104,6 +110,65 @@ const getCharacterDetail = async (id: number) => {
     throw err; // 重新抛出错误，让调用者可以处理
   }
 };
+
+const getRelatedSubjectsBySubjectId = async () => {
+  const res = await Service.getRelatedSubjectsBySubjectId(id);
+
+  relatedSubjects.value = res;
+};
+
+// 获取角色图片URL，如果不存在则返回默认图片
+const getCharacterImageUrl = (images: any) => {
+  return images?.small || "/default-character.png";
+};
+
+// 获取条目图片URL，如果不存在则返回默认图片
+const getSubjectImageUrl = (images: any) => {
+  return images?.small || "/default-subject.png";
+};
+
+// 获取用户头像URL，如果不存在则返回默认图片
+const getUserAvatarUrl = (avatar: any) => {
+  return avatar?.small || "/default-character.png";
+};
+
+// 获取收藏状态文本
+const getCollectionTypeText = (type: number) => {
+  switch (type) {
+    case 1:
+      return "想看";
+    case 2:
+      return "看过";
+    case 3:
+      return "在看";
+    case 4:
+      return "搁置";
+    case 5:
+      return "抛弃";
+    default:
+      return "未知";
+  }
+};
+
+// 获取评论板
+const getReviews = async () => {
+  try {
+    const res = await SubjectService.getSubjectReviews(id, 5, 0);
+    reviews.value = res.data || [];
+    console.log("Reviews data:", res);
+  } catch (err) {
+    console.error("获取评论失败:", err);
+    reviews.value = [];
+  }
+};
+
+const getSubjectComments = async () => {
+  const res = await SubjectService.getSubjectComments(id, 2, 20, 0);
+  comments.value = res.data || [];
+  console.log("Comments data:", res);
+};
+
+// 格式化日期
 </script>
 
 <template>
@@ -307,52 +372,185 @@ const getCharacterDetail = async (id: number) => {
             </div>
           </div>
           <!-- 关联角色 -->
-          <div
-            class="bg-white rounded-xl p-6 w-230 shadow-sm border border-gray-100"
-          >
-            <div class="flex justify-between items-center mb-3">
-              <h3 class="text-lg font-semibold text-gray-800 mb-3">关联角色</h3>
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">关联角色</h3>
               <button
-                class="px-3 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200"
+                class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200"
               >
                 全部
               </button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div
                 v-for="item in characters.slice(0, 12)"
                 :key="item.id"
-                class="bg-gray-50 rounded-lg overflow-hidden hover:bg-gray-100 transition-all duration-200 hover:shadow-sm flex justify-center items-center"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-100"
               >
                 <img
-                  :src="item.images?.small"
+                  :src="getCharacterImageUrl(item.images)"
                   alt=""
-                  class="w-16 h-16 ml-2 object-cover object-top rounded-sm"
-                  v-if="item.images && item.images.small"
+                  class="w-16 h-16 object-cover object-top rounded-md flex-shrink-0"
                 />
-                <div class="flex flex-col justify-center p-3 flex-1">
+                <div class="flex flex-col ml-3 min-w-0">
                   <div class="font-medium text-gray-800 text-sm truncate">
                     {{ item.name }}
                   </div>
-                  <!-- 定位 -->
-                  <div class="flex">
-                    <div
-                      class="text-xs text-gray-600 mt-1 bg-gray-100 rounded-[2px] border-gray-300 border-1"
+                  <div class="flex flex-wrap gap-2 mt-1">
+                    <span
+                      class="text-xs text-gray-600 bg-gray-100 rounded-[2px] px-1 py-0.5 whitespace-nowrap"
                     >
                       {{ item.relation }}
-                    </div>
-                    <div class="text-xs text-gray-600 mt-1 ml-2">
+                    </span>
+                    <span class="text-xs text-gray-600 truncate">
                       {{ charactersDetailMap[item.id]?.infobox?.[0]?.value }}
-                    </div>
+                    </span>
                   </div>
-                  <div class="text-xs text-blue-600 mt-1">
+
+                  <div
+                    v-if="item.actors?.[0]?.name"
+                    class="text-xs text-blue-600 mt-1 truncate"
+                  >
                     {{ item.actors?.[0]?.name }}
                   </div>
                 </div>
               </div>
             </div>
-            <div class="mt-4 flex justify-center"></div>
+          </div>
+
+          <!-- 关联条目 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-gray-800">关联条目</h3>
+              <button
+                class="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors duration-200"
+              >
+                全部
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div
+                v-for="item in relatedSubjects.slice(0, 12)"
+                :key="item.id"
+                class="flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-100"
+              >
+                <img
+                  :src="getSubjectImageUrl(item.images)"
+                  alt=""
+                  class="w-16 h-16 object-cover object-top rounded-md flex-shrink-0"
+                />
+                <div class="flex flex-col ml-3 min-w-0">
+                  <div class="font-medium text-gray-800 text-sm truncate">
+                    {{ item.name }}
+                  </div>
+                  <div class="text-xs text-gray-500 mt-1 truncate">
+                    {{ item.name_cn }}
+                  </div>
+                  <div class="text-xs text-gray-500 mt-1 truncate">
+                    {{ item.relation }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 讨论板 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">评论板</h3>
+            <div class="space-y-4">
+              <div
+                v-for="review in reviews"
+                :key="review.id"
+                class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div class="flex items-start">
+                  <img
+                    :src="getUserAvatarUrl(review.user.avatar)"
+                    alt=""
+                    class="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                  <div class="ml-3 flex-1 min-w-0">
+                    <div class="flex items-center">
+                      <span class="font-medium text-gray-900 text-sm">
+                        {{ review.user.nickname }}
+                      </span>
+                      <span class="text-gray-500 text-xs ml-2">
+                        {{ formatDate(review.entry.createdAt) }}
+                      </span>
+                    </div>
+                    <h4 class="font-medium text-gray-800 mt-1 truncate">
+                      {{ review.entry.title }}
+                    </h4>
+                    <p class="text-gray-600 text-sm mt-1 line-clamp-2">
+                      {{ review.entry.summary }}
+                    </p>
+                    <div class="flex items-center mt-2">
+                      <span class="text-xs text-gray-500">
+                        {{ review.entry.replies }} 条回复
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="reviews.length === 0"
+                class="text-center py-8 text-gray-500"
+              >
+                暂无评论
+              </div>
+            </div>
+          </div>
+          <!-- 吐槽箱 -->
+          <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">吐槽箱</h3>
+            <div class="space-y-4">
+              <div
+                v-for="comment in comments"
+                :key="comment.id"
+                class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+              >
+                <div class="flex items-start">
+                  <img
+                    :src="getUserAvatarUrl(comment.user.avatar)"
+                    alt=""
+                    class="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                  />
+                  <div class="ml-3 flex-1 min-w-0">
+                    <div class="flex items-center">
+                      <span class="font-medium text-gray-900 text-sm">
+                        {{ comment.user.nickname }}
+                      </span>
+                      <span
+                        class="text-xs ml-2 px-1.5 py-0.5 rounded"
+                        :class="{
+                          'bg-blue-100 text-blue-800': comment.type === 1,
+                          'bg-green-100 text-green-800': comment.type === 2,
+                          'bg-yellow-100 text-yellow-800': comment.type === 3,
+                          'bg-gray-100 text-gray-800': comment.type === 4,
+                          'bg-red-100 text-red-800': comment.type === 5,
+                        }"
+                      >
+                        {{ getCollectionTypeText(comment.type) }}
+                      </span>
+                      <span class="text-gray-500 text-xs ml-2">
+                        {{ formatDate(comment.updatedAt) }}
+                      </span>
+                    </div>
+                    <p class="text-gray-600 text-sm mt-2">
+                      {{ comment.comment }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="comments.length === 0"
+                class="text-center py-8 text-gray-500"
+              >
+                暂无吐槽
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -383,5 +581,12 @@ const getCharacterDetail = async (id: number) => {
 }
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>

@@ -45,32 +45,18 @@
       </h3>
 
       <!-- 错误状态显示自定义样式 -->
-      <div v-if="!data" class="flex flex-col items-center justify-center py-6">
-        <div
-          class="w-12 h-12 rounded-lg bg-red-50 flex items-center justify-center mb-3"
-        >
-          <svg
-            class="w-6 h-6 text-red-500"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.268 6.5c-.77.833-.192 2.5 1.732 2.5z"
-            ></path>
+      <div v-if="!data" class="flex flex-col items-center justify-center py-8">
+        <div class="mb-4">
+          <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
           </svg>
         </div>
-        <div class="text-red-600 text-sm font-medium text-center mb-3">
-          未能获取收藏信息
-        </div>
-        <button
-          @click="refresh"
-          class="px-4 py-2 bg-[#00a1d6] text-white text-sm font-medium rounded-lg hover:bg-[#0090c0] focus:outline-none focus:ring-2 focus:ring-[#00a1d6] transition-all duration-200"
+        <div class="text-base font-medium text-gray-500 mb-6">还没有收藏呢</div>
+        <button 
+          @click="handleModify" 
+          class="px-4 py-2 bg-gradient-to-r from-[#00a1d6] to-[#00b4ff] text-white text-sm font-medium rounded-lg hover:from-[#0090c0] hover:to-[#0099e6] focus:outline-none focus:ring-2 focus:ring-[#00a1d6] focus:ring-opacity-50 transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          重试
+          添加收藏
         </button>
       </div>
 

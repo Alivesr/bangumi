@@ -81,6 +81,5 @@ export type { WikiV0 } from "./models/WikiV0";
 export { Service } from "./services/Service";
 
 // 缓存服务导出
-export { CachedService } from "./services/CachedService";
 export { clearCache, clearAllCache } from "./core/cachedRequest";
 export { default as OpenAPICache } from "./core/Cache";
