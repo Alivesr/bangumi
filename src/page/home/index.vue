@@ -99,7 +99,7 @@ onMounted(() => {
 <template>
   <!-- 顶部导航栏 -->
   <div
-    class="flex flex-wrap items-center justify-between px-4 md:py-4 h-auto md:h-20 bg-gray-900 shadow-lg"
+    class="flex flex-wrap items-center justify-between px-4 md:py-4 h-auto md:h-20 bg-gray-900 shadow-lg flex-shrink-0"
   >
     <!-- Logo 和主要导航 -->
     <div class="flex items-center flex-wrap gap-4 md:gap-8">
@@ -448,7 +448,7 @@ onMounted(() => {
   </div>
 
   <!-- 主内容 -->
-  <div class="">
+  <div class="flex flex-1 min-h-0">
     <RouterView />
   </div>
 
