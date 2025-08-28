@@ -11,7 +11,9 @@ This is a Vue 3 + TypeScript + Vite application that integrates with the Bangumi
 - `src/` - Main source code
   - `api/` - API clients for communicating with Bangumi API
   - `components/` - Reusable Vue components
+  - `hook/` - Custom Vue composition functions
   - `openapi/` - Auto-generated API models and services from OpenAPI specification
+  - `openapi_p/` - Additional auto-generated API models and services
   - `page/` - Page-level Vue components organized by route
   - `router/` - Vue Router configuration
   - `stores/` - Pinia stores for state management
@@ -46,6 +48,12 @@ npm run openapi # Regenerate OpenAPI client from specification
 npm run format # Format code with Prettier
 ```
 
+### Local Server for Development
+
+```bash
+npm run dev:server # Run local server for development
+```
+
 ## Architecture
 
 ### Frontend Framework
@@ -57,7 +65,7 @@ npm run format # Format code with Prettier
 
 ### Styling
 
-- Tailwind CSS for utility-first styling
+- Tailwind CSS v4 for utility-first styling
 - DaisyUI component library
 - Responsive design with mobile-first approach
 
@@ -68,31 +76,61 @@ npm run format # Format code with Prettier
 
 ### API Integration
 
-- Axios is used for HTTP requests
+- Axios is used for HTTP requests with custom caching implementation
 - API client is configured in `src/api/axios.ts`
 - Specific API services are in `src/api/` directory
-- OpenAPI-generated models and services in `src/openapi/`
+- OpenAPI-generated models and services in `src/openapi/` and `src/openapi_p/`
+- Two different OpenAPI clients are used for different API endpoints
 
 ### Routing
 
 - Routes are defined in `src/router/index.ts`
 - Nested routes are used for the main layout component
 - All pages are located in `src/page/home/` directory
+- Main layout component in `src/page/home/index.vue` contains the navigation bar and search functionality
+
+### Authentication
+
+- OAuth flow with Bangumi API
+- Token storage in localStorage
+- Automatic token injection in API requests
+- User information retrieval and display
+
+### Caching
+
+- Custom caching implementation in `src/api/axios.ts`
+- LocalStorage-based caching with TTL (Time To Live)
+- Configurable cache duration per request
 
 ## Key Components
 
-1. **Authentication Flow**:
+1. **Main Layout** (`src/page/home/index.vue`):
+   - Navigation bar with category links
+   - Global search functionality
+   - User authentication state display
+   - Mobile-responsive menu
+
+2. **Authentication Flow**:
    - Managed by `src/stores/auth.ts`
    - Login is handled through OAuth redirection
    - Token is stored in localStorage
+   - User information retrieval from API
 
-2. **Search Functionality**:
+3. **Search Functionality**:
    - Implemented in `src/page/home/subject_search/index.vue`
-   - Uses `src/api/subject.ts` for API communication
+   - Uses API services for search queries
+   - Type-specific search options
 
-3. **Navigation Layout**:
-   - Main layout in `src/page/home/index.vue`
-   - Contains header with navigation, search, and user menu
+4. **Subject Details Page** (`src/page/home/subject/index.vue`):
+   - Comprehensive display of subject information
+   - Related characters and subjects
+   - Reviews and comments display
+   - Skeleton loading states
+
+5. **API Services**:
+   - Custom API implementations in `src/api/`
+   - Auto-generated OpenAPI clients in `src/openapi/` and `src/openapi_p/`
+   - Request/response interceptors for authentication and caching
 
 ## Environment Variables
 

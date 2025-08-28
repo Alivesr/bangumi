@@ -13,6 +13,9 @@ const subjects = ref<Subject[]>([]);
 const router = useRouter();
 const showMobileFilters = ref(false);
 
+// 添加动画相关的响应式变量
+const isAnimating = ref(false);
+
 // 筛选状态
 const filters = ref({
   category: 0, // 分类: 0=全部, 1=TV, 5=WEB, 2=OVA, 3=剧场版, 6=动态漫画, 0=其他
@@ -136,8 +139,12 @@ const getSubjects = async () => {
     total.value = res.total || 0;
   } catch (error) {
     console.error("Failed to fetch anime subjects:", error);
+    // 显示错误提示
+    subjects.value = [];
+    total.value = 0;
   } finally {
     loading.value = false;
+    isAnimating.value = false;
   }
 };
 
@@ -154,12 +161,16 @@ const handlePageChange = (page: number) => {
 
 // 应用筛选
 const applyFilters = () => {
+  isAnimating.value = true;
   currentPage.value = 1;
-  getSubjects();
+  getSubjects().finally(() => {
+    isAnimating.value = false;
+  });
 };
 
 // 应用筛选并关闭移动端筛选面板
 const applyFiltersAndClose = () => {
+  isAnimating.value = true;
   applyFilters();
   showMobileFilters.value = false;
 };
@@ -170,9 +181,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex-1 flex">
+  <div class="flex-1 flex flex-col lg:flex-row px-4 justify-center">
     <!-- 主内容区域 -->
-    <div class="flex-1 flex flex-col">
+    <div class="flex-1 flex flex-col w-full max-w-4xl px-6">
       <!-- 加载状态 -->
       <div
         v-if="loading"
@@ -191,17 +202,17 @@ onMounted(() => {
       </div>
 
       <!-- 搜索结果 -->
-      <ul v-else class="list w-full bg-base-100 rounded-box shadow-md">
+      <div v-else class="max-w-4xl" :class="{ 'opacity-50': isAnimating }">
         <!-- 搜索结果统计 -->
-        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
+        <div class="px-4 py-3 text-sm text-gray-600 bg-gray-50 rounded-lg mb-4">
           共 {{ total }} 条结果 (第 {{ currentPage }} 页，共
           {{ Math.ceil(total / pageSize) }} 页)
-        </li>
+        </div>
 
         <!-- 无搜索结果提示 -->
-        <li
+        <div
           v-if="subjects.length === 0"
-          class="flex flex-col items-center justify-center py-16"
+          class="flex flex-col items-center justify-center py-16 bg-white rounded-xl shadow-sm"
         >
           <div
             class="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-6"
@@ -222,121 +233,150 @@ onMounted(() => {
           </div>
           <p class="text-gray-600 text-lg font-medium">未找到相关动漫条目</p>
           <p class="text-gray-500 mt-2">请稍后再试或联系管理员</p>
-        </li>
+        </div>
 
         <!-- 搜索结果列表 -->
-        <li
-          class="list-row transition-colors duration-200"
-          v-for="item in subjects"
-          :key="item.id"
-          @click="handleClick(item.id)"
+        <div
+          class="space-y-4 mb-6 transition-opacity duration-300"
+          :class="{ 'opacity-50': isAnimating }"
+          v-if="subjects.length > 0"
         >
           <div
-            class="flex items-center gap-4 p-4 border-b border-gray-100 last:border-b-0 hover:bg-blue-50 cursor-pointer rounded-lg hover:shadow-sm transition-all duration-200"
+            v-for="item in subjects"
+            :key="item.id"
+            @click="handleClick(item.id)"
+            class="bg-white rounded-xl transition-all duration-300 cursor-pointer overflow-hidden border border-gray-100 hover:border-blue-200 group flex"
           >
-            <!-- 封面图片 -->
-            <div class="flex-shrink-0">
-              <img
-                class="w-16 h-24 rounded-md object-cover shadow-sm transition-transform duration-300 hover:scale-105"
-                :src="
-                  item.images?.medium ||
-                  item.images?.common ||
-                  '/placeholder-image.png'
-                "
-                :alt="item.name_cn || item.name"
-                @error="
-                  ($event) =>
-                    (($event.target as HTMLImageElement).src =
-                      '/placeholder-image.png')
-                "
-                loading="lazy"
-              />
-            </div>
-
-            <!-- 条目信息 -->
-            <div class="flex flex-col justify-center flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
+            <div class="flex">
+              <!-- 封面图片 -->
+              <div class="relative flex-shrink-0">
+                <img
+                  class="w-24 h-36 object-cover transition-transform duration-500"
+                  :src="
+                    item.images?.medium ||
+                    item.images?.common ||
+                    '/placeholder-image.png'
+                  "
+                  :alt="item.name_cn || item.name"
+                  @error="
+                    ($event) =>
+                      (($event.target as HTMLImageElement).src =
+                        '/placeholder-image.png')
+                  "
+                  loading="lazy"
+                />
+                <!-- 评分标签 -->
                 <div
-                  v-if="item.name_cn && item.name_cn.trim()"
-                  class="font-semibold text-gray-900 dark:text-gray-100 truncate cursor-pointer text-base"
+                  v-if="item.rating?.score"
+                  class="absolute top-1 right-1 bg-yellow-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full flex items-center"
                 >
-                  {{ item.name_cn }}
-                </div>
-                <div
-                  :class="[
-                    !item.name_cn || !item.name_cn.trim()
-                      ? 'font-semibold text-gray-900 dark:text-gray-100 truncate cursor-pointer text-base'
-                      : 'text-sm uppercase font-semibold opacity-60',
-                  ]"
-                >
-                  {{ item.name }}
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                <span v-if="item.date">{{ item.date }}</span>
-                <span v-if="item.platform" class="capitalize">{{
-                  item.platform
-                }}</span>
-                <span v-if="item.eps > 0">{{ item.eps }}话</span>
-              </div>
-
-              <!-- 标签 -->
-              <div
-                class="flex flex-wrap gap-1 mb-2"
-                v-if="item.meta_tags && item.meta_tags.length > 0"
-              >
-                <div
-                  v-for="tag in item.meta_tags.slice(0, 3)"
-                  :key="tag"
-                  class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full"
-                >
-                  {{ tag }}
-                </div>
-              </div>
-
-              <!-- 评分 -->
-              <div class="flex items-center gap-2">
-                <div class="rating rating-sm rating-half">
-                  <template v-for="i in 10" :key="i">
-                    <input
-                      type="radio"
-                      :name="'rating-' + item.id"
-                      :class="[
-                        'mask mask-star-2',
-                        i % 2 === 1 ? 'mask-half-1' : 'mask-half-2',
-                        'bg-yellow-300',
-                      ]"
-                      :checked="
-                        item.rating &&
-                        Math.round((item.rating.score / 2) * 2) === i
-                      "
-                      disabled
+                  <svg
+                    class="w-2.5 h-2.5 mr-0.5 fill-current"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
                     />
-                  </template>
+                  </svg>
+                  {{ item.rating.score.toFixed(1) }}
                 </div>
-                <div class="text-xs font-semibold text-gray-700">
-                  {{
-                    item.rating?.score
-                      ? item.rating.score.toFixed(1)
-                      : "暂无评分"
-                  }}
+              </div>
+
+              <!-- 条目信息 -->
+              <div class="flex flex-col p-4 flex-grow">
+                <div class="flex items-start gap-2 mb-2">
+                  <div
+                    v-if="item.name_cn && item.name_cn.trim()"
+                    class="font-semibold text-gray-900 line-clamp-2 text-sm group-hover:text-blue-600 transition-colors duration-200"
+                  >
+                    {{ item.name_cn }}
+                  </div>
+                  <div
+                    v-else
+                    class="font-semibold text-gray-900 line-clamp-2 text-sm group-hover:text-blue-600 transition-colors duration-200"
+                  >
+                    {{ item.name }}
+                  </div>
                 </div>
-                <div class="text-xs text-gray-500">
-                  ({{ item.rating?.total || 0 }}人评分)
+
+                <div class="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                  <span v-if="item.date">{{ item.date }}</span>
+                  <span v-if="item.platform" class="capitalize">{{
+                    item.platform
+                  }}</span>
+                  <span v-if="item.eps > 0">{{ item.eps }}话</span>
+                </div>
+
+                <!-- 标签 -->
+                <div
+                  class="flex flex-wrap gap-1 mb-2"
+                  v-if="item.meta_tags && item.meta_tags.length > 0"
+                >
+                  <div
+                    v-for="tag in item.meta_tags.slice(0, 3)"
+                    :key="tag"
+                    class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full"
+                  >
+                    {{ tag }}
+                  </div>
+                </div>
+                <!-- 评分和收藏按钮 -->
+                <div class="flex items-center justify-between mt-auto pt-2">
+                  <div class="flex items-center gap-2">
+                    <div class="rating rating-sm rating-half">
+                      <template v-for="i in 10" :key="i">
+                        <input
+                          type="radio"
+                          :name="'rating-' + item.id"
+                          :class="[
+                            'mask mask-star-2',
+                            i % 2 === 1 ? 'mask-half-1' : 'mask-half-2',
+                            'bg-yellow-300',
+                          ]"
+                          :checked="
+                            item.rating &&
+                            Math.round((item.rating.score / 2) * 2) === i
+                          "
+                          disabled
+                        />
+                      </template>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      ({{ item.rating?.total || 0 }})
+                    </div>
+                  </div>
+                  <button
+                    class="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                    @click.stop
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      ></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </li>
-      </ul>
+        </div>
+      </div>
       <!-- 分页按钮 -->
       <div
         v-if="!loading && total > pageSize"
-        class="flex justify-center mt-6 mb-6 gap-2 flex-wrap"
+        class="flex justify-center mt-6 mb-6 gap-2 flex-wrap transition-opacity duration-300"
+        :class="{ 'opacity-50': isAnimating }"
       >
         <button
-          class="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          class="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="currentPage === 1"
           @click="handlePageChange(currentPage - 1)"
         >
@@ -344,7 +384,9 @@ onMounted(() => {
         </button>
 
         <!-- 页码显示 -->
-        <div class="flex items-center">
+        <div
+          class="flex items-center bg-white rounded-lg border border-gray-300"
+        >
           <input
             type="number"
             :min="1"
@@ -354,16 +396,16 @@ onMounted(() => {
               (e) =>
                 handlePageChange(Number((e.target as HTMLInputElement).value))
             "
-            class="w-16 px-2 py-2 text-center border border-gray-300 rounded-lg mx-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            class="w-16 px-3 py-2 text-center bg-transparent focus:outline-none"
           />
-          <span class="text-gray-600 mx-1">/</span>
-          <span class="text-gray-600 mx-1">{{
+          <span class="text-gray-400 mx-1">/</span>
+          <span class="text-gray-600 px-3 py-2">{{
             Math.ceil(total / pageSize)
           }}</span>
         </div>
 
         <button
-          class="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          class="px-4 py-2 bg-white text-gray-700 rounded-lg border border-gray-300 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           :disabled="currentPage >= Math.ceil(total / pageSize)"
           @click="handlePageChange(currentPage + 1)"
         >
@@ -373,8 +415,8 @@ onMounted(() => {
     </div>
 
     <!-- 筛选栏 (仅在大屏幕显示) -->
-    <div class="hidden lg:flex flex-col w-64 flex-shrink-0 ml-6">
-      <div class="bg-white rounded-xl shadow-lg p-5 flex-1">
+    <div class="flex flex-col w-70 flex-shrink-0">
+      <div class="bg-white rounded-xl p-5 flex-1 sticky top-6">
         <div class="flex items-center justify-between mb-5">
           <h3 class="text-lg font-bold text-gray-800">筛选</h3>
           <button
@@ -395,10 +437,10 @@ onMounted(() => {
                 :key="item.value"
                 @click="filters.category = item.value"
                 :class="[
-                  'px-3 py-1.5 text-sm rounded-lg transition-colors duration-150',
+                  'px-3 py-1.5 text-sm rounded-full transition-all duration-200',
                   filters.category === item.value
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm',
                 ]"
               >
                 {{ item.label }}
@@ -409,16 +451,16 @@ onMounted(() => {
           <!-- 年份筛选 -->
           <div class="mb-6">
             <h4 class="text-sm font-semibold text-gray-700 mb-3">年份</h4>
-            <div class="flex flex-wrap gap-2">
+            <div class="grid grid-cols-3 gap-2">
               <button
                 v-for="item in yearOptions"
                 :key="item.value"
                 @click="filters.year = item.value"
                 :class="[
-                  'px-3 py-1.5 text-sm rounded-lg transition-colors duration-150',
+                  'px-2 py-1.5 text-sm rounded-full transition-all duration-200 text-center',
                   filters.year === item.value
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm',
                 ]"
               >
                 {{ item.label }}
@@ -429,16 +471,16 @@ onMounted(() => {
           <!-- 月份筛选 -->
           <div class="mb-6">
             <h4 class="text-sm font-semibold text-gray-700 mb-3">月份</h4>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-4 gap-2">
               <button
                 v-for="item in monthOptions"
                 :key="item.value"
                 @click="filters.month = item.value"
                 :class="[
-                  'px-2 py-1.5 text-sm rounded-lg transition-colors duration-150 text-center',
+                  'px-2 py-1.5 text-sm rounded-full transition-all duration-200 text-center',
                   filters.month === item.value
-                    ? 'bg-blue-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                    ? 'bg-blue-500 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-sm',
                 ]"
               >
                 {{ item.label }}
@@ -449,148 +491,10 @@ onMounted(() => {
 
         <button
           @click="applyFilters"
-          class="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          class="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mt-4"
         >
           应用筛选
         </button>
-      </div>
-    </div>
-
-    <!-- 浮动筛选按钮 (移动端) -->
-    <div class="lg:hidden fixed bottom-6 right-6 z-10">
-      <button
-        @click="showMobileFilters = true"
-        class="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition-all duration-200"
-      >
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-          ></path>
-        </svg>
-      </button>
-    </div>
-
-    <!-- 移动端筛选抽屉 -->
-    <div
-      v-if="showMobileFilters"
-      class="lg:hidden fixed inset-0 z-50 overflow-hidden"
-    >
-      <div
-        class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
-        @click="showMobileFilters = false"
-      ></div>
-      <div class="absolute inset-y-0 right-0 max-w-full flex">
-        <div class="relative w-screen max-w-sm">
-          <div class="h-full flex flex-col bg-white shadow-xl">
-            <div class="flex items-center justify-between px-4 py-6 border-b">
-              <h2 class="text-lg font-medium text-gray-900">筛选</h2>
-              <button
-                @click="showMobileFilters = false"
-                class="text-gray-400 hover:text-gray-500"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-4">
-              <!-- 分类筛选 -->
-              <div class="mb-6">
-                <h3 class="text-md font-medium text-gray-900 mb-3">分类</h3>
-                <div class="space-y-2">
-                  <label
-                    class="flex items-center cursor-pointer group"
-                    v-for="item in categoryOptions"
-                    :key="item.value"
-                  >
-                    <input
-                      type="radio"
-                      v-model="filters.category"
-                      :value="item.value"
-                      class="radio radio-primary radio-sm group-hover:radio-accent"
-                    />
-                    <span
-                      class="ml-2 text-sm text-gray-700 group-hover:text-gray-900"
-                      >{{ item.label }}</span
-                    >
-                  </label>
-                </div>
-              </div>
-
-              <!-- 年份筛选 -->
-              <div class="mb-6">
-                <h3 class="text-md font-medium text-gray-900 mb-3">年份</h3>
-                <div class="space-y-2 max-h-40 overflow-y-auto pr-2">
-                  <label
-                    class="flex items-center cursor-pointer group"
-                    v-for="item in yearOptions"
-                    :key="item.value"
-                  >
-                    <input
-                      type="radio"
-                      v-model="filters.year"
-                      :value="item.value"
-                      class="radio radio-primary radio-sm group-hover:radio-accent"
-                    />
-                    <span
-                      class="ml-2 text-sm text-gray-700 group-hover:text-gray-900"
-                      >{{ item.label }}</span
-                    >
-                  </label>
-                </div>
-              </div>
-
-              <!-- 月份筛选 -->
-              <div class="mb-6">
-                <h3 class="text-md font-medium text-gray-900 mb-3">月份</h3>
-                <div class="grid grid-cols-3 gap-2">
-                  <label
-                    class="flex items-center justify-center cursor-pointer group py-2 px-3 rounded-md hover:bg-gray-100"
-                    v-for="item in monthOptions"
-                    :key="item.value"
-                  >
-                    <input
-                      type="radio"
-                      v-model="filters.month"
-                      :value="item.value"
-                      class="radio radio-primary radio-sm group-hover:radio-accent hidden"
-                    />
-                    <span
-                      class="text-sm text-gray-700 group-hover:text-gray-900"
-                      >{{ item.label }}</span
-                    >
-                  </label>
-                </div>
-              </div>
-            </div>
-            <div class="border-t p-4">
-              <button
-                @click="applyFiltersAndClose"
-                class="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm font-medium shadow-sm"
-              >
-                应用筛选
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
