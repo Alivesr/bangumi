@@ -11,7 +11,6 @@ const currentPage = ref(1);
 const pageSize = ref(20);
 const subjects = ref<Subject[]>([]);
 const router = useRouter();
-const showMobileFilters = ref(false);
 
 // 添加动画相关的响应式变量
 const isAnimating = ref(false);
@@ -132,7 +131,6 @@ const getSubjects = async () => {
       params.month,
       params.limit,
       params.offset,
-      params.order,
     );
 
     subjects.value = res.data || [];
@@ -166,13 +164,6 @@ const applyFilters = () => {
   getSubjects().finally(() => {
     isAnimating.value = false;
   });
-};
-
-// 应用筛选并关闭移动端筛选面板
-const applyFiltersAndClose = () => {
-  isAnimating.value = true;
-  applyFilters();
-  showMobileFilters.value = false;
 };
 
 onMounted(() => {

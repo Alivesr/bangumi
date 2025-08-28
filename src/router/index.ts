@@ -88,6 +88,14 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(), // 或 createWebHashHistory()
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    // 如果有保存的位置（比如浏览器的前进后退），则返回保存的位置
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // 否则滚动到顶部
+    return { top: 0 };
+  },
 });
 
 export default router;
